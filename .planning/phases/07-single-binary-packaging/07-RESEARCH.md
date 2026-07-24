@@ -336,17 +336,17 @@ Verified this session: a minimal Express app (`require('express')`, `app.listen(
 
 **All other claims in this document were verified locally during this research session** (by compiling and running actual Bun binaries on this machine) or cited from official Bun documentation (`bun.com/docs/bundler/executables`) — none rely solely on unverified training-data recall.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Should `server/cli.js` itself be authored as CJS (per the codebase's existing convention) or ESM?**
    - What we know: Both work. A CJS `cli.js` can dynamically `import()` the ESM `generatedAssets.mjs` (verified working, including compiled). Converting `cli.js` fully to ESM was not necessary in any verified test.
    - What's unclear: Whether the planner prefers `cli.js` to stay CJS (matching `server/app.js`, `server/server.js` convention) for consistency, or become the project's first ESM file.
-   - Recommendation: Keep `server/cli.js` as CommonJS, matching existing project convention (`"type": "commonjs"` in `package.json`, all other files CJS) — only `server/generatedAssets.mjs` needs to be ESM, and only because `type: "file"` import attributes require it.
+   - RESOLVED: Keep `server/cli.js` as CommonJS, matching existing project convention (`"type": "commonjs"` in `package.json`, all other files CJS) — only `server/generatedAssets.mjs` needs to be ESM, and only because `type: "file"` import attributes require it. Plans 07-01/07-03 implement `server/cli.js` as CommonJS accordingly.
 
 2. **Exact `--help` text wording and error message formatting.**
    - What we know: CONTEXT.md explicitly leaves this to Claude's discretion (D-06/D-07 specify *what* must appear, not exact wording).
    - What's unclear: N/A — this is intentionally open per CONTEXT.md.
-   - Recommendation: Planner/implementer picks reasonable, conventional CLI help text (usage line, subcommand list with one-line descriptions, flags per subcommand) — no further research needed.
+   - RESOLVED: Planner/implementer picks reasonable, conventional CLI help text (usage line, subcommand list with one-line descriptions, flags per subcommand) — no further research needed. Plan 07-03 (Task 1) implements this per Claude's discretion as specified.
 
 ## Environment Availability
 

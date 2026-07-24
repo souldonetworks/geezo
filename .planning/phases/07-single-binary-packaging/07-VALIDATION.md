@@ -1,9 +1,9 @@
 ---
 phase: 07
 slug: single-binary-packaging
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-24
 ---
 
@@ -38,26 +38,27 @@ created: 2026-07-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 07-01-TBD | TBD | 0 | PKG-01 | — | `server/cli.js` dispatches serve/hook/install-hook, --help, unknown-command error | unit | `node --test tests/server/cli.test.js` | ❌ W0 | ⬜ pending |
-| 07-01-TBD | TBD | 0 | PKG-06 | T-07-01 | Missing `generatedAssets.mjs` produces explicit error, not a crash | unit | `node --test tests/server/cli.test.js` | ❌ W0 | ⬜ pending |
-| 07-02-TBD | TBD | 1 | PKG-03 | — | `generate-assets-manifest.js` produces correct import statements + URL-path map against a fixture directory | unit | `node --test tests/scripts/generate-assets-manifest.test.js` | ❌ W0 | ⬜ pending |
-| 07-03-TBD | TBD | 1 | PKG-04 | — | `hook` subcommand behaves identically to `node hooks/gsd-web-hook.js` via `runHookFromStdin()` | unit | `node --test tests/hooks/gsd-web-hook.test.js` (extend existing) | ✅ existing, needs extension | ⬜ pending |
-| 07-04-TBD | TBD | 1 | PKG-05 | T-07-03 | `install-hook` reuses `installHooks(hookCommand, settingsPath)` with binary path via `process.execPath` | unit | `node --test tests/scripts/install-hook.test.js` (update for new signature) | ✅ existing, needs signature update | ⬜ pending |
-| 07-05-TBD | TBD | 1 | — (D-05/D-01/D-04) | T-07-02 | `--port`/`--host` flags validated (parseable int, 1–65535 range) before `.listen()` | unit | `node --test tests/server/cli.test.js` | ❌ W0 | ⬜ pending |
-| 07-06-TBD | TBD | 2 | PKG-02 | — | `npm run build:binary` produces 5 correctly-named binaries (`geezo-<platform>`, `.exe` on Windows) | manual/smoke (only darwin-arm64 executable on this machine; others build-verified via `file <path>`) | `npm run build:binary && file dist-bin/*` | ❌ W0 — new script + smoke checklist | ⬜ pending |
-| 07-07-TBD | TBD | 2 | PKG-07 | — | `npm run dev`/`start`/`test` unaffected — zero modification to `server/server.js`/`server/app.js` behavior | regression | `npm test` (full existing suite green) | ✅ existing suite | ⬜ pending |
+| 07-01-T1 | 07-01 | 1 | PKG-04 | — | `hooks/gsd-web-hook.js` exports `runHookFromStdin()`, reused by `hook` subcommand, `handle()` behavior unchanged | unit | `node --test tests/hooks/gsd-web-hook.test.js` (extended) | ✅ existing, extended | ⬜ pending |
+| 07-01-T2 | 07-01 | 1 | PKG-05 | T-07-04 | `scripts/install-hook.js` exports `installHooks(hookCommand, settingsPath)` with full-command-string signature, backup-before-write preserved | unit | `node --test tests/scripts/install-hook.test.js` (updated signature) | ✅ existing, signature updated | ⬜ pending |
+| 07-02-T1 | 07-02 | 1 | PKG-03 | — | `generateManifestSource(distDir)` produces correct `type: "file"` import statements + URL-path manifest against a fixture directory | unit | `node --test tests/scripts/generate-assets-manifest.test.js` (new) | ❌ W0 — new file | ⬜ pending |
+| 07-02-T2 | 07-02 | 1 | PKG-03 | — | Generator handles nested dirs, relative import paths, missing-dir error; `.gitignore` updated for `server/generatedAssets.mjs` + `dist-bin/` | unit | `node --test tests/scripts/generate-assets-manifest.test.js` | ❌ W0 — new file | ⬜ pending |
+| 07-03-T1 | 07-03 | 2 | PKG-01, PKG-06 | T-07-01, T-07-02, T-07-03 | `server/cli.js` dispatches serve/hook/install-hook, `--help`/no-args/`--version`/unknown-command; `--port`/`--host` validated; missing `generatedAssets.mjs` produces explicit error via `serveEmbeddedAsset()`, not a crash | unit | `node -e "const cli = require('./server/cli'); ..."` (load-time check) + `node --test tests/server/cli.test.js` | ❌ W0 — new file | ⬜ pending |
+| 07-03-T2 | 07-03 | 2 | PKG-01, PKG-05, PKG-06 | T-07-01, T-07-02, T-07-03 | `dispatch()` subcommand routing, `resolvePort`/`resolveHost` precedence, unknown-command exit 1, invalid-port rejection, `install-hook` uses `process.execPath` (not `argv[1]`), `serveEmbeddedAsset` catch branch fires (console.error + process.exit(1) stub) | unit | `node --test tests/server/cli.test.js` | ❌ W0 — new file | ⬜ pending |
+| 07-04-T1 | 07-04 | 3 | PKG-02 | T-07-SC | `scripts/build-binary.js` exports `getTargets()` (5 correctly-named platform targets) and `checkBunAvailable()`; fail-fast per-target build loop with D-12 friendly bun-missing error | unit | `node -e "const b = require('./scripts/build-binary'); ..."` | ❌ W0 — new file | ⬜ pending |
+| 07-04-T2 | 07-04 | 3 | PKG-02, PKG-07 | — | `getTargets()`/`checkBunAvailable()` unit-tested; `package.json` gains exactly one `build:binary` entry, all 7 existing scripts byte-identical; full suite green | unit + regression | `node --test tests/scripts/build-binary.test.js && npm test` | ❌ W0 — new file | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-*Task IDs are placeholders — the planner assigns final plan/wave/task numbering; this map's requirement coverage must be preserved 1:1.*
+*Manual/smoke-only behaviors (compiled binary execution across all 5 platforms, PKG-02) are tracked separately in "Manual-Only Verifications" below, not in this automated map.*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `tests/server/cli.test.js` — covers PKG-01 (subcommand dispatch, `--help`, unknown command → exit 1), PKG-06 (missing-assets error path), and `--port`/`--host` validation
-- [ ] `tests/scripts/generate-assets-manifest.test.js` — covers PKG-03's manifest-generation logic against a small fixture directory (not a real Vite build)
-- [ ] Extend `tests/hooks/gsd-web-hook.test.js` — add `runHookFromStdin()` coverage (PKG-04)
-- [ ] Update `tests/scripts/install-hook.test.js` — existing tests call `mergeHookConfig({}, '/path/to/gsd-web-hook.js')` and assert `command === 'node /path/to/gsd-web-hook.js'`; must be updated for the new signature where the second parameter is a full command string (e.g. `"node /abs/path/hooks/gsd-web-hook.js"` or `"/abs/path/to/binary hook"`)
+- [ ] `tests/server/cli.test.js` — covers PKG-01 (subcommand dispatch, `--help`, unknown command → exit 1), PKG-06 (missing-assets error path via direct `serveEmbeddedAsset` invocation), and `--port`/`--host` validation (07-03)
+- [ ] `tests/scripts/generate-assets-manifest.test.js` — covers PKG-03's manifest-generation logic against a small fixture directory (not a real Vite build) (07-02)
+- [ ] `tests/scripts/build-binary.test.js` — covers PKG-02's `getTargets()`/`checkBunAvailable()` pure logic (07-04)
+- [ ] Extend `tests/hooks/gsd-web-hook.test.js` — add `runHookFromStdin()` coverage (PKG-04) (07-01)
+- [ ] Update `tests/scripts/install-hook.test.js` — existing tests call `mergeHookConfig({}, '/path/to/gsd-web-hook.js')` and assert `command === 'node /path/to/gsd-web-hook.js'`; updated for the new signature where the second parameter is a full command string (e.g. `"node /abs/path/hooks/gsd-web-hook.js"` or `"/abs/path/to/binary hook"`) (07-01)
 - [ ] No test framework install needed — `node:test` is already in use project-wide
 
 ---
@@ -82,6 +83,7 @@ created: 2026-07-24
 | T-07-02 | Invalid/malicious `--port` value causes a crash or unexpected bind behavior | Denial of Service | Validate `--port` is a parseable integer in range 1–65535 before `.listen()`; fall back to default (4317) or print a clear error |
 | T-07-03 | `--host 0.0.0.0` inadvertently exposes the no-auth dashboard to a LAN | Information Disclosure | D-04 default is `localhost`; log a startup notice when bound to a non-localhost host so exposure is visible, not silent |
 | T-07-04 | `install-hook` overwrites `~/.claude/settings.json` unsafely | Tampering | Preserve existing backup-before-write behavior through the `installHooks(hookCommand, settingsPath)` refactor, unchanged |
+| T-07-SC | `bun build --compile` subprocess invocation | Tampering | Fixed, hardcoded `execFileSync` argv array (no shell interpolation); D-12 pre-check only detects presence, never auto-installs |
 
 **Block on:** high severity (per project default `security_block_on`). None of the above are rated high — all have a stated, low-cost mitigation.
 
@@ -100,11 +102,11 @@ created: 2026-07-24
 
 ## Validation Sign-Off
 
-- [ ] All tasks have automated verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have automated verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved

@@ -96,7 +96,7 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
   2. `npm run build:binary` produces executables for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, and `windows-x64` in `dist-bin/`
   3. Running the compiled binary's `hook` subcommand against Claude Code hook stdin behaves identically to `node hooks/gsd-web-hook.js` (same never-throw, always-exit-0 guarantee)
   4. Running the compiled binary's `install-hook` subcommand registers hooks in `~/.claude/settings.json` pointing at the binary path, backing up the file first
-  5. If `server/generatedAssets.js` is missing when `serve` runs, the binary prints a clear, explicit error instead of crashing on a missing import
+  5. If `server/generatedAssets.mjs` is missing when `serve` runs, the binary prints a clear, explicit error instead of crashing on a missing import
   6. `npm run dev`, `npm start`, and `npm test` continue to work exactly as before — packaging is fully additive
 **Plans**: 4 plans
 Plans:
