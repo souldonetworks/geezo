@@ -1,0 +1,36 @@
+/* GSD Design System – Colors */
+:root {
+  /* Primary green (Solaris terminal aesthetic) */
+  --color-primary: #00ff00;
+  --color-primary-dark: #00cc00;
+  --color-primary-light: #33ff33;
+
+  /* Neutrals (greenscreen monochrome) */
+  --color-bg-primary: #001100;
+  --color-bg-secondary: #002200;
+  --color-bg-tertiary: #003300;
+  --color-fg-primary: #00ff00;
+  --color-fg-secondary: #00cc00;
+  --color-fg-tertiary: #008800;
+
+  /* Semantic colors */
+  --color-success: #00ff00;
+  --color-warning: #ffaa00;
+  --color-error: #ff3300;
+  --color-info: #00ffff;
+
+  /* Accent: amber/orange for highlights */
+  --color-accent: #ffaa00;
+  --color-accent-dark: #ff8800;
+
+  /* Text colors */
+  --color-text-primary: #00ff00;
+  --color-text-secondary: #00aa00;
+  --color-text-disabled: #004400;
+  --color-text-inverse: #001100;
+
+  /* Border colors */
+  --color-border-primary: #00ff00;
+  --color-border-secondary: #006600;
+  --color-border-disabled: #003300;
+}

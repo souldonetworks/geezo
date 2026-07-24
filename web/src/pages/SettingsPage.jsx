@@ -9,7 +9,12 @@ export default function SettingsPage() {
     getSettings().then(setSettings);
   }, []);
 
-  if (!settings) return <p>Loading…</p>;
+  if (!settings)
+    return (
+      <div className="page-content">
+        <p className="empty-state">Loading…</p>
+      </div>
+    );
 
   function updateTemplate(tool, value) {
     setSettings({ ...settings, commandTemplates: { ...settings.commandTemplates, [tool]: value } });
@@ -23,43 +28,59 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h1>Settings</h1>
-      <label>
-        CLI tool:
-        <select value={settings.cliTool} onChange={(e) => setSettings({ ...settings, cliTool: e.target.value })}>
-          <option value="claude">claude</option>
-          <option value="codex">codex</option>
-          <option value="gemini">gemini</option>
-        </select>
-      </label>
-      <br />
-      <label>
-        Terminal app:
-        <select
-          value={settings.terminalApp}
-          onChange={(e) => setSettings({ ...settings, terminalApp: e.target.value })}
-        >
-          <option value="Terminal">Terminal</option>
-          <option value="iTerm">iTerm</option>
-        </select>
-      </label>
-      <h2>Convert command templates</h2>
-      {['claude', 'codex', 'gemini'].map((tool) => (
-        <div key={tool}>
-          <label>
-            {tool}:
-            <input
-              type="text"
-              value={settings.commandTemplates[tool]}
-              onChange={(e) => updateTemplate(tool, e.target.value)}
-              style={{ width: '20rem' }}
-            />
-          </label>
+    <>
+      <div className="page-header">
+        <h1>settings</h1>
+      </div>
+      <div className="page-content">
+        <div className="card">
+          <h3>convert defaults</h3>
+
+          <div className="form-row">
+            <label>cli tool</label>
+            <select
+              className="input"
+              value={settings.cliTool}
+              onChange={(e) => setSettings({ ...settings, cliTool: e.target.value })}
+            >
+              <option value="claude">claude</option>
+              <option value="codex">codex</option>
+              <option value="gemini">gemini</option>
+            </select>
+          </div>
+
+          <div className="form-row">
+            <label>terminal app</label>
+            <select
+              className="input"
+              value={settings.terminalApp}
+              onChange={(e) => setSettings({ ...settings, terminalApp: e.target.value })}
+            >
+              <option value="Terminal">Terminal</option>
+              <option value="iTerm">iTerm</option>
+            </select>
+          </div>
+
+          {['claude', 'codex', 'gemini'].map((tool) => (
+            <div className="form-row" key={tool}>
+              <label>{tool} command template</label>
+              <input
+                className="input"
+                type="text"
+                value={settings.commandTemplates[tool]}
+                onChange={(e) => updateTemplate(tool, e.target.value)}
+              />
+            </div>
+          ))}
+
+          <div className="inline-row" style={{ alignItems: 'center' }}>
+            <button className="btn btn-primary" onClick={handleSave}>
+              save
+            </button>
+            {saved && <span className="saved-text">saved.</span>}
+          </div>
         </div>
-      ))}
-      <button onClick={handleSave}>Save</button>
-      {saved && <span> Saved.</span>}
-    </div>
+      </div>
+    </>
   );
 }

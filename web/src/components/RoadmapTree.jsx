@@ -3,20 +3,28 @@ import { useState } from 'react';
 function Phase({ phase }) {
   const [open, setOpen] = useState(false);
   return (
-    <div style={{ marginBottom: '0.5rem' }}>
-      <div onClick={() => setOpen(!open)} style={{ cursor: 'pointer', fontWeight: 'bold' }}>
-        {phase.status === 'done' ? '[x]' : '[ ]'} Phase {phase.number}: {phase.title}
+    <div style={{ marginBottom: 'var(--gap-sm)' }}>
+      <div
+        onClick={() => setOpen(!open)}
+        className="stat"
+        style={{ cursor: 'pointer', fontWeight: 'var(--font-weight-semibold)' }}
+      >
+        <span>
+          Phase {phase.number}: {phase.title}
+        </span>
+        <span className={`badge ${phase.status === 'done' ? '' : 'muted'}`}>{phase.status}</span>
       </div>
       {open && (
-        <div style={{ paddingLeft: '1.5rem' }}>
-          <p>{phase.goal}</p>
-          <ul>
-            {phase.plans.map((plan) => (
-              <li key={plan.id}>
-                {plan.done ? '[x]' : '[ ]'} {plan.id}: {plan.title}
-              </li>
-            ))}
-          </ul>
+        <div style={{ paddingLeft: 'var(--space-4)', paddingTop: 'var(--gap-xs)' }}>
+          <p className="empty-state">{phase.goal}</p>
+          {phase.plans.map((plan) => (
+            <div className="log-line" key={plan.id}>
+              <span className={`badge ${plan.done ? '' : 'muted'}`} style={{ marginRight: 'var(--gap-sm)' }}>
+                {plan.done ? 'done' : 'pending'}
+              </span>
+              {plan.id}: {plan.title}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -24,7 +32,7 @@ function Phase({ phase }) {
 }
 
 export default function RoadmapTree({ roadmap }) {
-  if (!roadmap || roadmap.phases.length === 0) return <p>No roadmap data found.</p>;
+  if (!roadmap || roadmap.phases.length === 0) return <p className="empty-state">No roadmap data found.</p>;
   return (
     <div>
       {roadmap.phases.map((phase) => (

@@ -16,15 +16,16 @@ export default function RunningNowPanel({ projectId }) {
     return unsubscribe;
   }, [projectId]);
 
-  if (running.length === 0) return <p>Idle — no subagents currently running.</p>;
+  if (running.length === 0) return <p className="empty-state">Idle — no subagents currently running.</p>;
 
   return (
-    <ul>
+    <div>
       {running.map((agent) => (
-        <li key={`${agent.agentType}-${agent.startedAt}`}>
-          <strong>{agent.agentType}</strong>: {agent.description} ({formatElapsed(agent.elapsedMs)})
-        </li>
+        <div className="log-line" key={`${agent.agentType}-${agent.startedAt}`}>
+          <strong style={{ color: 'var(--color-primary)' }}>{agent.agentType}</strong>: {agent.description} (
+          {formatElapsed(agent.elapsedMs)})
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }

@@ -16,20 +16,24 @@ export default function ProjectDetail() {
   }, [id]);
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h1>Project Detail</h1>
-      <section>
-        <h2>Running Now</h2>
-        <RunningNowPanel projectId={id} />
-      </section>
-      <section>
-        <h2>Milestone</h2>
-        <GitMilestonePanel git={git} />
-      </section>
-      <section>
-        <h2>Roadmap</h2>
-        <RoadmapTree roadmap={roadmap} />
-      </section>
-    </div>
+    <>
+      <div className="page-header">
+        <h1>project detail</h1>
+      </div>
+      <div className="page-content">
+        <div className="card">
+          <h3>running now</h3>
+          <RunningNowPanel projectId={id} />
+        </div>
+        <div className="card">
+          <h3>milestone</h3>
+          <GitMilestonePanel git={git} />
+        </div>
+        <div className="card">
+          <h3>roadmap</h3>
+          <RoadmapTree roadmap={roadmap} />
+        </div>
+      </div>
+    </>
   );
 }

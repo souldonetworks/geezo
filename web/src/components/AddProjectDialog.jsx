@@ -28,21 +28,29 @@ export default function AddProjectDialog({ onAdded }) {
   }
 
   return (
-    <div style={{ marginBottom: '1rem' }}>
-      <input
-        type="text"
-        placeholder="/absolute/path/to/project"
-        value={path}
-        onChange={(e) => setPath(e.target.value)}
-      />
-      <button onClick={handleAdd}>Add Project</button>
+    <div className="card">
+      <div className="inline-row">
+        <input
+          className="input"
+          type="text"
+          placeholder="/absolute/path/to/project"
+          value={path}
+          onChange={(e) => setPath(e.target.value)}
+          style={{ flex: 1 }}
+        />
+        <button className="btn btn-primary" onClick={handleAdd}>
+          add project
+        </button>
+      </div>
       {notGsd && (
-        <div>
-          <p>That folder isn't a GSD project yet.</p>
-          <button onClick={handleConvert}>Convert to GSD project</button>
+        <div style={{ marginTop: 'var(--gap-md)' }}>
+          <p className="empty-state">That folder isn't a GSD project yet.</p>
+          <button className="btn btn-secondary" onClick={handleConvert}>
+            convert to gsd project
+          </button>
         </div>
       )}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
     </div>
   );
 }
