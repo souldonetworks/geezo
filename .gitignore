@@ -2,3 +2,5 @@ node_modules/
 web/node_modules/
 web/dist/
 *.log
+server/generatedAssets.mjs
+dist-bin/
