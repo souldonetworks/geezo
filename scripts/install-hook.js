@@ -2,46 +2,43 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-function hookEntry(hookScriptPath) {
-  return { matcher: 'Task', hooks: [{ type: 'command', command: `node ${hookScriptPath}` }] };
+function hookEntry(hookCommand) {
+  return { matcher: 'Task', hooks: [{ type: 'command', command: hookCommand }] };
 }
 
-function stopHookEntry(hookScriptPath) {
-  return { hooks: [{ type: 'command', command: `node ${hookScriptPath}` }] };
+function stopHookEntry(hookCommand) {
+  return { hooks: [{ type: 'command', command: hookCommand }] };
 }
 
 function hasEntry(list, command) {
   return list.some((entry) => (entry.hooks || []).some((h) => h.command === command));
 }
 
-function mergeHookConfig(existing, hookScriptPath) {
+function mergeHookConfig(existing, hookCommand) {
   const settings = JSON.parse(JSON.stringify(existing || {}));
   settings.hooks = settings.hooks || {};
 
-  const command = `node ${hookScriptPath}`;
+  const command = hookCommand;
 
   settings.hooks.PreToolUse = settings.hooks.PreToolUse || [];
   if (!hasEntry(settings.hooks.PreToolUse, command)) {
-    settings.hooks.PreToolUse.push(hookEntry(hookScriptPath));
+    settings.hooks.PreToolUse.push(hookEntry(hookCommand));
   }
 
   settings.hooks.PostToolUse = settings.hooks.PostToolUse || [];
   if (!hasEntry(settings.hooks.PostToolUse, command)) {
-    settings.hooks.PostToolUse.push(hookEntry(hookScriptPath));
+    settings.hooks.PostToolUse.push(hookEntry(hookCommand));
   }
 
   settings.hooks.Stop = settings.hooks.Stop || [];
   if (!hasEntry(settings.hooks.Stop, command)) {
-    settings.hooks.Stop.push(stopHookEntry(hookScriptPath));
+    settings.hooks.Stop.push(stopHookEntry(hookCommand));
   }
 
   return settings;
 }
 
-if (require.main === module) {
-  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
-  const hookScriptPath = path.join(__dirname, '..', 'hooks', 'gsd-web-hook.js');
-
+function installHooks(hookCommand, settingsPath) {
   const existing = fs.existsSync(settingsPath) ? JSON.parse(fs.readFileSync(settingsPath, 'utf8')) : {};
 
   if (fs.existsSync(settingsPath)) {
@@ -50,10 +47,17 @@ if (require.main === module) {
     console.log(`Backed up existing settings to ${backupPath}`);
   }
 
-  const merged = mergeHookConfig(existing, hookScriptPath);
+  const merged = mergeHookConfig(existing, hookCommand);
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
   fs.writeFileSync(settingsPath, JSON.stringify(merged, null, 2));
   console.log(`Installed gsd-web hooks into ${settingsPath}`);
 }
 
-module.exports = { mergeHookConfig };
+if (require.main === module) {
+  const settingsPath = path.join(os.homedir(), '.claude', 'settings.json');
+  const hookCommand = `node ${path.join(__dirname, '..', 'hooks', 'gsd-web-hook.js')}`;
+
+  installHooks(hookCommand, settingsPath);
+}
+
+module.exports = { mergeHookConfig, installHooks };

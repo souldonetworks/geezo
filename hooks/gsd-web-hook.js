@@ -72,7 +72,7 @@ function handle(input) {
   }
 }
 
-if (require.main === module) {
+function runHookFromStdin() {
   let raw = '';
   process.stdin.on('data', (chunk) => {
     raw += chunk;
@@ -87,4 +87,8 @@ if (require.main === module) {
   });
 }
 
-module.exports = { handle };
+if (require.main === module) {
+  runHookFromStdin();
+}
+
+module.exports = { handle, runHookFromStdin };

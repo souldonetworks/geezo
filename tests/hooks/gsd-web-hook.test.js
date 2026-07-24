@@ -70,3 +70,52 @@ test('handle never throws on malformed input', () => {
   assert.doesNotThrow(() => hook.handle({}));
   assert.doesNotThrow(() => hook.handle({ hook_event_name: 'PreToolUse', tool_name: 'Task' }));
 });
+
+test('runHookFromStdin is exported as a function', () => {
+  const { hook } = freshHome();
+  assert.equal(typeof hook.runHookFromStdin, 'function');
+});
+
+test('runHookFromStdin reads JSON payload from stdin and writes the same status file as handle()', async () => {
+  const { hook, paths } = freshHome();
+  const cwd = '/some/stdin/project';
+  const payload = {
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Task',
+    tool_use_id: 'tool-stdin-1',
+    cwd,
+    session_id: 'sess-stdin',
+    tool_input: { subagent_type: 'gsd-executor', description: 'stdin test' },
+  };
+
+  const originalExit = process.exit;
+  let exitCalled = false;
+  process.exit = (code) => {
+    exitCalled = true;
+  };
+
+  const originalStdinOn = process.stdin.on;
+  const listeners = {};
+  process.stdin.on = (event, cb) => {
+    listeners[event] = cb;
+    return process.stdin;
+  };
+
+  try {
+    hook.runHookFromStdin();
+    listeners['data'](Buffer.from(JSON.stringify(payload)));
+    listeners['end']();
+
+    const dir = paths.statusDirFor(cwd);
+    const file = path.join(dir, 'tool-stdin-1.json');
+    assert.equal(fs.existsSync(file), true);
+    const written = JSON.parse(fs.readFileSync(file, 'utf8'));
+    assert.equal(written.agentType, 'gsd-executor');
+    assert.equal(written.description, 'stdin test');
+    assert.equal(written.sessionId, 'sess-stdin');
+    assert.equal(exitCalled, true);
+  } finally {
+    process.exit = originalExit;
+    process.stdin.on = originalStdinOn;
+  }
+});
