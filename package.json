@@ -10,7 +10,8 @@
     "build:web": "npm run build --prefix web",
     "start": "npm run build:web && node server/server.js",
     "test": "node --test \"tests/server/**/*.test.js\" \"tests/hooks/**/*.test.js\" \"tests/scripts/**/*.test.js\"",
-    "install-hook": "node scripts/install-hook.js"
+    "install-hook": "node scripts/install-hook.js",
+    "build:binary": "node scripts/build-binary.js"
   },
   "dependencies": {
     "express": "^4.19.2",
