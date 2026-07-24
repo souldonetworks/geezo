@@ -98,7 +98,12 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
   4. Running the compiled binary's `install-hook` subcommand registers hooks in `~/.claude/settings.json` pointing at the binary path, backing up the file first
   5. If `server/generatedAssets.js` is missing when `serve` runs, the binary prints a clear, explicit error instead of crashing on a missing import
   6. `npm run dev`, `npm start`, and `npm test` continue to work exactly as before — packaging is fully additive
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 07-01-PLAN.md — Refactor hooks/gsd-web-hook.js and scripts/install-hook.js to export runHookFromStdin()/installHooks() for CLI reuse
+- [ ] 07-02-PLAN.md — Build scripts/generate-assets-manifest.js to generate server/generatedAssets.mjs (ESM asset embedding manifest)
+- [ ] 07-03-PLAN.md — Build server/cli.js unified entrypoint (serve/hook/install-hook dispatch, --port/--host/--help/--version)
+- [ ] 07-04-PLAN.md — Build scripts/build-binary.js multi-platform build:binary orchestration script
 
 ## Progress
 
