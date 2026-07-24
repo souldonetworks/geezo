@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: gaps_found
-stopped_at: Phase 7 verification found gaps
-last_updated: "2026-07-24T18:28:26.000Z"
-last_activity: 2026-07-24 -- Phase 07 execution complete (4/4 plans), verification found gaps
+status: planned
+stopped_at: Phase 7 gap-closure plan created (07-05-PLAN.md)
+last_updated: "2026-07-24T19:44:00.000Z"
+last_activity: 2026-07-24 -- Phase 07 gap-closure plan created and checker-verified (VERIFICATION PASSED, 2 non-blocking warnings)
 progress:
   total_phases: 7
   completed_phases: 6
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-07-24)
 
 ## Current Position
 
-Phase: 07 (single-binary-packaging) — GAPS FOUND
-Plan: 4 of 4 (all plans executed; phase-goal verification failed)
-Status: Verification found gaps_found — 2/6 must-haves verified
-Last activity: 2026-07-24 -- Phase 07 verification found gaps (compiled binary crashes under Bun)
+Phase: 07 (single-binary-packaging) — GAP CLOSURE PLANNED
+Plan: 07-05-PLAN.md ready to execute (gap_closure: true, wave 1, 3 tasks)
+Status: Plan-checker VERIFICATION PASSED (2 non-blocking warnings) — ready for /gsd:execute-phase 07 --gaps-only
+Last activity: 2026-07-24 -- Phase 07 gap-closure plan created and checker-verified
 
-Progress: [████████░░] 6/7 phases (86%) — Phase 7 plans complete but goal not yet achieved
+Progress: [████████░░] 6/7 phases (86%) — Phase 7 gap-closure plan ready to execute
 
 ## Performance Metrics
 
@@ -70,9 +70,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- **Phase 7 verification found gaps (2026-07-24, see 07-VERIFICATION.md):** the compiled binary crashes on every subcommand (`--help`, `--version`, `hook`, `serve`) with `error: No such built-in module: node:sqlite`. Root cause: `server/cli.js` unconditionally `require('./app')`s at load time, which transitively requires `server/lib/gsdDbReader.js`'s `require('node:sqlite')` — a Node-only built-in Bun v1.3.14 doesn't implement. Fix path: give `gsdDbReader.js` a Bun-compatible code path (`bun:sqlite`) or lazy-load `./app` only inside the `serve` branch of `dispatch()`.
-- **Unfixed CR-01 (critical, from 07-REVIEW.md):** `server/cli.js`'s `serveEmbeddedAsset` does an unguarded `manifest[req.path]` lookup — remote DoS via prototype-pollution-shaped requests once `serve` is reachable. Must fix before phase can close.
-- Next step: `/gsd:plan-phase 07 --gaps` to generate a gap-closure plan from 07-VERIFICATION.md's structured gaps.
+- **Phase 7 gap-closure plan ready (2026-07-24):** `07-05-PLAN.md` fixes the `node:sqlite`/Bun crash (lazy `openDatabase()` in `server/lib/gsdDbReader.js` branching on `typeof Bun !== 'undefined'`) and CR-01's unguarded `manifest[req.path]` DoS (new `resolveAssetPath()` with an own-property guard in `server/cli.js`), plus a new `tests/scripts/binary-smoke.test.js` that runs the real `bun` binary against `server/cli.js`. Plan-checker returned VERIFICATION PASSED with 2 non-blocking warnings: (1) Task 3 smoke-tests `bun server/cli.js` uncompiled, not the actual `bun build --compile`d `dist-bin/*` artifact — compile-only failure modes remain unautomated; (2) PKG-06/Truth 5 (missing `generatedAssets.mjs` friendly-error path) isn't re-verified end-to-end under Bun once `serve` is unblocked. Neither blocks execution.
+- Next step: `/gsd:execute-phase 07 --gaps-only` to execute 07-05-PLAN.md, then re-run phase verification.
 - SPEC 2 (implementation plan) was only read in full for tasks 1-12 during ingest; later tasks (hook script, installer, frontend components) were not individually extracted into intel — already irrelevant since that work is shipped, but worth knowing if deeper historical detail is ever needed.
 
 ## Deferred Items
