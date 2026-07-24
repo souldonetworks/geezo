@@ -1,0 +1,24 @@
+{
+  "source_path": "/Users/matthew/Code/geezo/docs/superpowers/specs/2026-07-24-gsd-run-dashboard-design.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "GSD Run Dashboard — Design",
+  "summary": "Technical design for a local read-only web dashboard tracking GSD project roadmaps, live subagent activity, and git milestones.",
+  "scope": [
+    "GSD run dashboard",
+    "Node.js/Express backend",
+    "React frontend",
+    "Claude Code hooks (PreToolUse/PostToolUse/Stop)",
+    "ROADMAP.md/STATE.md parsing",
+    "project registry",
+    "git milestone detection",
+    "SSE live agent activity stream",
+    "settings/convert-to-GSD-project flow",
+    "REST API surface"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

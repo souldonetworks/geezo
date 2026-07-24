@@ -1,0 +1,13 @@
+{
+  "source_path": "/Users/matthew/Code/geezo/docs/superpowers/specs/2026-07-24-single-binary-packaging-design.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Single-Binary Packaging (Bun compile) — Design",
+  "summary": "Technical design for packaging the GSD Run Dashboard (Node/Express + React + Claude Code hook) into a single Bun-compiled native executable.",
+  "scope": ["server/cli.js", "bun build --compile", "asset embedding", "hooks/gsd-web-hook.js", "scripts/install-hook.js", "multi-platform build", "web/dist", "Claude Code hook integration"],
+  "cross_refs": ["server/app.js", "server/server.js", "hooks/gsd-web-hook.js", "scripts/install-hook.js", "scripts/generate-assets-manifest.js", "server/generatedAssets.js"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

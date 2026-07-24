@@ -1,0 +1,28 @@
+{
+  "source_path": "/Users/matthew/Code/geezo/docs/superpowers/plans/2026-07-24-gsd-run-dashboard-plan.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "GSD Run Dashboard Implementation Plan",
+  "summary": "Task-by-task TDD implementation plan for a local Node/Express + React dashboard that tracks GSD project roadmaps, live agent activity, and git milestones.",
+  "scope": [
+    "GSD run dashboard",
+    "Express backend",
+    "React (Vite) frontend",
+    "project registry",
+    "ROADMAP.md parser",
+    "STATE.md parser",
+    "progress combiner",
+    "git milestone detection",
+    "settings module",
+    "convert-terminal command builder",
+    "live activity store",
+    "SSE hub",
+    "Claude Code hook (gsd-web-hook.js)",
+    "hook installer script"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Document is structured as a step-by-step implementation/TDD plan (code, tests, commit steps) rather than a pure decision record or product requirements doc. Classified as SPEC because each task defines concrete module interfaces/data contracts (Produces/Consumes signatures, API surface, data shapes) that other components must honor; ambiguity resolved per the ADR>SPEC>PRD>DOC precedence rule since DOC (tutorial/step-by-step) signals were also present alongside the interface/contract signals."
+}
