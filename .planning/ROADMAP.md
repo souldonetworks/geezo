@@ -100,8 +100,8 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
   6. `npm run dev`, `npm start`, and `npm test` continue to work exactly as before — packaging is fully additive
 **Plans**: 4 plans
 Plans:
-- [ ] 07-01-PLAN.md — Refactor hooks/gsd-web-hook.js and scripts/install-hook.js to export runHookFromStdin()/installHooks() for CLI reuse
-- [ ] 07-02-PLAN.md — Build scripts/generate-assets-manifest.js to generate server/generatedAssets.mjs (ESM asset embedding manifest)
+- [x] 07-01-PLAN.md — Refactor hooks/gsd-web-hook.js and scripts/install-hook.js to export runHookFromStdin()/installHooks() for CLI reuse
+- [x] 07-02-PLAN.md — Build scripts/generate-assets-manifest.js to generate server/generatedAssets.mjs (ESM asset embedding manifest)
 - [ ] 07-03-PLAN.md — Build server/cli.js unified entrypoint (serve/hook/install-hook dispatch, --port/--host/--help/--version)
 - [ ] 07-04-PLAN.md — Build scripts/build-binary.js multi-platform build:binary orchestration script
 
@@ -118,4 +118,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Git Milestone Detection | Complete | Complete | 2026-07-24 (retroactive) |
 | 5. Convert-to-GSD Flow | Complete | Complete | 2026-07-24 (retroactive) |
 | 6. Dashboard UI | Complete | Complete | 2026-07-24 (retroactive) |
-| 7. Single-Binary Packaging | 0/TBD | Not started | - |
+| 7. Single-Binary Packaging | 2/4 | In Progress|  |
