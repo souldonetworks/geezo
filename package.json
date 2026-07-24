@@ -9,7 +9,7 @@
     "dev": "concurrently -n server,web \"npm run dev:server\" \"npm run dev:web\"",
     "build:web": "npm run build --prefix web",
     "start": "npm run build:web && node server/server.js",
-    "test": "node --test tests/server tests/hooks tests/scripts",
+    "test": "node --test \"tests/server/**/*.test.js\" \"tests/hooks/**/*.test.js\" \"tests/scripts/**/*.test.js\"",
     "install-hook": "node scripts/install-hook.js"
   },
   "dependencies": {
