@@ -26,8 +26,16 @@ No component talks to any external service. Everything is local files, local git
 ## Project registry
 
 - Registry file: `~/.claude/gsd-web/projects.json` — array of `{ id, path, name, addedAt }`.
-- **Add project**: UI folder picker (`<input type="file" webkitdirectory>`) yields a path client-side; POST to backend, which validates the path exists and contains `.planning/ROADMAP.md`. Rejects with a clear error if not a GSD project.
+- **Add project**: UI folder picker (`<input type="file" webkitdirectory>`) yields a path client-side; POST to backend, which validates the path exists. If it contains `.planning/ROADMAP.md`, it's registered as a GSD project. If not, the UI offers "Convert to GSD project" instead of a hard rejection (see below); the folder is only added to the registry once `.planning/` exists.
 - **Remove project**: deletes the registry entry only. Never touches the project folder or its `.planning/` contents.
+
+## Converting a non-GSD folder
+
+When a folder without `.planning/ROADMAP.md` is added, the UI shows a "Convert to GSD project" action instead of a bare error. Clicking it launches a terminal to bootstrap the project:
+
+- **Settings panel** (`~/.claude/gsd-web/settings.json`): `{ cliTool: 'claude'|'codex'|'gemini', terminalApp: 'Terminal'|'iTerm', commandTemplates: { claude: 'claude "/gsd:new-project"', codex: 'codex', gemini: 'gemini' } }`. Editable from a settings view in the dashboard. `commandTemplates` defaults as shown — only `claude` has a GSD-aware default (`/gsd:new-project` is a Claude Code skill); `codex`/`gemini` default to just launching the bare CLI since their GSD-equivalent init commands aren't assumed. All three are user-editable text fields.
+- **Convert action**: backend endpoint `POST /api/convert` takes the target folder path, reads `settings.json`, and spawns the configured terminal app (macOS `osascript` — `tell application "<terminalApp>" to do script "cd <path> && <commandTemplates[cliTool]>"`) with the working directory set to the target folder. This is macOS-specific (matches the current environment); no Linux/Windows terminal-launch path is implemented.
+- The dashboard does not poll or wait for the conversion — the user works in the opened terminal session at their own pace. The folder becomes addable as a real GSD project (via the normal Add Project flow) once `.planning/ROADMAP.md` exists.
 
 ## Roadmap & progress parsing
 
@@ -72,16 +80,19 @@ For a project with a `.git` directory:
 ## API surface
 
 - `GET /api/projects` — registered projects with summary (name, % complete, current phase, milestone tag, running-agent count)
-- `POST /api/projects` — add by path (validates `.planning/`)
+- `POST /api/projects` — add by path (validates `.planning/`; returns a distinguishable response if the path exists but isn't a GSD project yet, so the UI can offer conversion instead of a bare error)
 - `DELETE /api/projects/:id` — remove from registry
 - `GET /api/projects/:id/roadmap` — full parsed roadmap/progress tree
 - `GET /api/projects/:id/git` — milestone info
 - `GET /api/projects/:id/activity/stream` — SSE stream of the running-agent list
+- `GET /api/settings` / `PUT /api/settings` — read/update `settings.json` (CLI tool, terminal app, command templates)
+- `POST /api/convert` — spawn the configured terminal against a given folder path to bootstrap it as a GSD project
 
 ## UI
 
-- **Dashboard** (`/`): card grid, one per project — name, progress bar, current phase, milestone tag, "N agents running" badge when active. "Add Project" button opens the folder picker flow.
+- **Dashboard** (`/`): card grid, one per project — name, progress bar, current phase, milestone tag, "N agents running" badge when active. "Add Project" button opens the folder picker flow; if the picked folder isn't a GSD project yet, shows "Convert to GSD project" instead of an error.
 - **Project detail** (`/project/:id`): roadmap tree (phases → plans, checkboxes, collapsible per phase), a "Running Now" live panel (subagent type + description + elapsed, or idle state), and a git panel (milestone tag/date/message as plain text — no guessed remote URLs/links).
+- **Settings** (`/settings`): form for CLI tool choice, terminal app choice, and the per-tool command templates used by the convert action.
 
 ## Error handling
 
