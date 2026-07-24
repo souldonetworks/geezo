@@ -97,19 +97,7 @@ button {
   max-width: 96px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(var(--glow-primary));
-  /* The source art has a solid black matte (no alpha channel); "lighten"
-     blend mode drops out black against our near-black background so it
-     reads as transparent instead of a visible box. */
-  mix-blend-mode: lighten;
-}
-
-.geezo-header .label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 2px;
-  color: var(--color-accent);
-  text-transform: lowercase;
+  filter: drop-shadow(var(--glow-primary-strong));
 }
 
 /* Nav */

@@ -19,7 +19,6 @@ export default function App() {
         <div className="sidebar">
           <div className="geezo-header">
             <img src={geezo} alt="Geezo" title="Still watching." />
-            <div className="label">geezo</div>
           </div>
           <NavItem to="/" end>
             projects
