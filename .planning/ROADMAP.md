@@ -16,7 +16,7 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
 - [x] **Phase 4: Git Milestone Detection** - Dashboard shows each project's newest pushed git tag with graceful fallback states
 - [x] **Phase 5: Convert-to-GSD Flow** - User can turn a non-GSD folder into a GSD project by launching a configured terminal/CLI command
 - [x] **Phase 6: Dashboard UI** - User can view/manage all of the above through a React dashboard, project detail page, and settings page
-- [x] **Phase 7: Single-Binary Packaging** - User can run the entire dashboard (including the hook) as one native executable with no Node.js install required (completed 2026-07-24)
+- [ ] **Phase 7: Single-Binary Packaging** - User can run the entire dashboard (including the hook) as one native executable with no Node.js install required (gaps found in verification 2026-07-24 — compiled binary crashes under Bun due to `node:sqlite`)
 
 ## Phase Details
 
@@ -118,4 +118,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Git Milestone Detection | Complete | Complete | 2026-07-24 (retroactive) |
 | 5. Convert-to-GSD Flow | Complete | Complete | 2026-07-24 (retroactive) |
 | 6. Dashboard UI | Complete | Complete | 2026-07-24 (retroactive) |
-| 7. Single-Binary Packaging | 4/4 | Complete   | 2026-07-24 |
+| 7. Single-Binary Packaging | 4/4 | Gaps Found | — |
