@@ -5,17 +5,23 @@ const registry = require('../lib/registry');
 const { scanDirectory } = require('../lib/scanDirectory');
 const { parseRoadmap } = require('../lib/roadmapParser');
 const { parseState } = require('../lib/stateParser');
+const { hasGsdDatabase, readGsdDatabase } = require('../lib/gsdDbReader');
 const { computeProgress } = require('../lib/progress');
 const { getMilestone } = require('../lib/gitMilestone');
 const { listRunning } = require('../lib/activityStore');
 
 function readRoadmap(projectPath) {
+  if (hasGsdDatabase(projectPath)) return readGsdDatabase(projectPath);
   const roadmapPath = path.join(projectPath, '.planning', 'ROADMAP.md');
   const roadmapText = fs.existsSync(roadmapPath) ? fs.readFileSync(roadmapPath, 'utf8') : '';
   return parseRoadmap(roadmapText);
 }
 
 function readState(projectPath) {
+  // The .gsd/gsd.db format has no separate "state summary" record — progress
+  // falls back to counting phases/plans from readRoadmap(), same as a
+  // .planning/ project with no STATE.md.
+  if (hasGsdDatabase(projectPath)) return null;
   const statePath = path.join(projectPath, '.planning', 'STATE.md');
   if (!fs.existsSync(statePath)) return null;
   return parseState(fs.readFileSync(statePath, 'utf8'));

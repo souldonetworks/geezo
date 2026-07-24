@@ -39,3 +39,16 @@ test('addProject rejects a nonexistent path', () => {
   const registry = freshHome();
   assert.throws(() => registry.addProject('/no/such/path/at/all'), (err) => err.code === 'PATH_NOT_FOUND');
 });
+
+test('addProject accepts a project using the .gsd/gsd.db format', () => {
+  const registry = freshHome();
+  const { DatabaseSync } = require('node:sqlite');
+  const target = fs.mkdtempSync(path.join(os.tmpdir(), 'is-gsd-db-'));
+  fs.mkdirSync(path.join(target, '.gsd'));
+  const db = new DatabaseSync(path.join(target, '.gsd', 'gsd.db'));
+  db.exec('CREATE TABLE milestones (id TEXT PRIMARY KEY);');
+  db.close();
+
+  const project = registry.addProject(target);
+  assert.equal(project.path, fs.realpathSync(target));
+});

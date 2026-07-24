@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { projectsFile, gsdWebDir } = require('./paths');
+const { hasGsdDatabase } = require('./gsdDbReader');
 
 function ensureDir() {
   fs.mkdirSync(gsdWebDir(), { recursive: true });
@@ -19,7 +20,7 @@ function saveProjects(list) {
 }
 
 function isGsdProject(absPath) {
-  return fs.existsSync(path.join(absPath, '.planning', 'ROADMAP.md'));
+  return fs.existsSync(path.join(absPath, '.planning', 'ROADMAP.md')) || hasGsdDatabase(absPath);
 }
 
 function addProject(absPath) {
