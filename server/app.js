@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('node:path');
+const fs = require('node:fs');
 const { createSseHub } = require('./lib/sse');
 const { createProjectsRouter } = require('./routes/projects');
 const { createSettingsRouter } = require('./routes/settingsRoute');
@@ -17,6 +19,14 @@ function createApp() {
   app.use('/api/projects', createProjectsRouter(sseHub));
   app.use('/api/settings', createSettingsRouter());
   app.use('/api/convert', createConvertRouter());
+
+  const distDir = path.join(__dirname, '..', 'web', 'dist');
+  if (fs.existsSync(distDir)) {
+    app.use(express.static(distDir));
+    app.get(/^\/(?!api).*/, (req, res) => {
+      res.sendFile(path.join(distDir, 'index.html'));
+    });
+  }
 
   return app;
 }
