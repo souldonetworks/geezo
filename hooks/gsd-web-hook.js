@@ -2,8 +2,19 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { statusDirFor, statusRootDir } = require('../server/lib/paths');
 
+function resolveCwd(cwd) {
+  try {
+    return fs.realpathSync(cwd);
+  } catch {
+    // cwd may not exist (e.g. in tests, or a transient race); fall back to
+    // the unresolved path rather than throwing. Hook failures must never
+    // surface to the user's Claude Code session.
+    return cwd;
+  }
+}
+
 function handleTaskStart(input) {
-  const cwd = input.cwd || process.cwd();
+  const cwd = resolveCwd(input.cwd || process.cwd());
   const dir = statusDirFor(cwd);
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, `${input.tool_use_id}.json`);
@@ -18,7 +29,7 @@ function handleTaskStart(input) {
 }
 
 function handleTaskEnd(input) {
-  const cwd = input.cwd || process.cwd();
+  const cwd = resolveCwd(input.cwd || process.cwd());
   const file = path.join(statusDirFor(cwd), `${input.tool_use_id}.json`);
   if (fs.existsSync(file)) fs.unlinkSync(file);
 }
