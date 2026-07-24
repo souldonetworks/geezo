@@ -13,7 +13,7 @@ test('buildConvertScript embeds the cd, the tool command, and the chosen termina
 
   assert.match(script, /tell application "Terminal" to do script/);
   assert.match(script, /cd \\"\/Users\/me\/my project\\"/);
-  assert.match(script, /claude \\\\"\/gsd:new-project\\\\"/);
+  assert.match(script, /claude \\"\/gsd:new-project\\"/);
 });
 
 test('buildConvertScript falls back to the claude template if cliTool has no template', () => {
@@ -25,6 +25,6 @@ test('buildConvertScript falls back to the claude template if cliTool has no tem
   };
 
   const script = buildConvertScript(settings, '/tmp/x');
-  assert.match(script, /claude \\\\"\/gsd:new-project\\\\"/);
+  assert.match(script, /claude \\"\/gsd:new-project\\"/);
   assert.match(script, /tell application "iTerm"/);
 });

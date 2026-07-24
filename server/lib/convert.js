@@ -2,9 +2,9 @@ const { execFileSync } = require('node:child_process');
 
 function buildConvertScript(settings, targetPath) {
   const template = settings.commandTemplates[settings.cliTool] || settings.commandTemplates.claude;
-  const escapedTemplate = template.replace(/"/g, '\\"').replace(/\\/g, '\\\\');
-  const shellCommand = `cd "${targetPath}" && ${escapedTemplate}`;
-  const forOsascript = shellCommand.replace(/(?<!\\)"/g, '\\"');
+  const escapedPath = targetPath.replace(/"/g, '\\"');
+  const shellCommand = `cd "${escapedPath}" && ${template}`;
+  const forOsascript = shellCommand.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
   return `tell application "${settings.terminalApp}" to do script "${forOsascript}"`;
 }
 
