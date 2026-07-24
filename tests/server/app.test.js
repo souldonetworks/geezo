@@ -65,6 +65,35 @@ test('POST /api/projects rejects a non-GSD folder with 409 NOT_GSD_PROJECT, then
   server.close();
 });
 
+test('GET /api/projects/scan lists a parent directory\'s subfolders with GSD/registered status', async () => {
+  const { createApp } = freshHome();
+  const app = createApp();
+  const server = app.listen(0);
+  const { port } = server.address();
+  const base = `http://localhost:${port}`;
+
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'scan-route-parent-'));
+  const gsdProject = path.join(parent, 'has-gsd');
+  fs.mkdirSync(path.join(gsdProject, '.planning'), { recursive: true });
+  fs.writeFileSync(path.join(gsdProject, '.planning', 'ROADMAP.md'), '# Roadmap');
+  fs.mkdirSync(path.join(parent, 'no-gsd'));
+
+  const missingRes = await fetch(`${base}/api/projects/scan`);
+  assert.equal(missingRes.status, 400);
+
+  const notFoundRes = await fetch(`${base}/api/projects/scan?path=${encodeURIComponent('/no/such/dir')}`);
+  assert.equal(notFoundRes.status, 404);
+
+  const okRes = await fetch(`${base}/api/projects/scan?path=${encodeURIComponent(parent)}`);
+  assert.equal(okRes.status, 200);
+  const results = await okRes.json();
+  const byName = Object.fromEntries(results.map((r) => [r.name, r]));
+  assert.equal(byName['has-gsd'].isGsdProject, true);
+  assert.equal(byName['no-gsd'].isGsdProject, false);
+
+  server.close();
+});
+
 test('GET/PUT /api/settings round-trips a partial update', async () => {
   const { createApp } = freshHome();
   const app = createApp();

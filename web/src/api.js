@@ -22,6 +22,10 @@ export function addProject(path) {
   return request('/projects', { method: 'POST', body: JSON.stringify({ path }) });
 }
 
+export function scanDirectory(path) {
+  return request(`/projects/scan?path=${encodeURIComponent(path)}`);
+}
+
 export function removeProject(id) {
   return request(`/projects/${id}`, { method: 'DELETE' });
 }

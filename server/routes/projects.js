@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('node:fs');
 const path = require('node:path');
 const registry = require('../lib/registry');
+const { scanDirectory } = require('../lib/scanDirectory');
 const { parseRoadmap } = require('../lib/roadmapParser');
 const { parseState } = require('../lib/stateParser');
 const { computeProgress } = require('../lib/progress');
@@ -33,6 +34,17 @@ function createProjectsRouter(sseHub) {
       return { ...project, progress, git, runningCount };
     });
     res.json(projects);
+  });
+
+  router.get('/scan', (req, res) => {
+    const { path: parentPath } = req.query;
+    if (!parentPath) return res.status(400).json({ code: 'MISSING_PATH' });
+    try {
+      res.json(scanDirectory(parentPath));
+    } catch (err) {
+      const statusByCode = { PATH_NOT_FOUND: 404 };
+      res.status(statusByCode[err.code] || 500).json({ code: err.code || 'UNKNOWN', message: err.message });
+    }
   });
 
   router.post('/', (req, res) => {
