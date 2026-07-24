@@ -1,0 +1,22 @@
+{
+  "name": "gsd-run-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev:server": "node server/server.js",
+    "dev:web": "npm run dev --prefix web",
+    "dev": "concurrently -n server,web \"npm run dev:server\" \"npm run dev:web\"",
+    "build:web": "npm run build --prefix web",
+    "start": "npm run build:web && node server/server.js",
+    "test": "node --test tests/server tests/hooks tests/scripts",
+    "install-hook": "node scripts/install-hook.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
