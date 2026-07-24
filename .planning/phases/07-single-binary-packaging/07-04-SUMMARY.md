@@ -95,3 +95,6 @@ None - no external service configuration required.
 ---
 *Phase: 07-single-binary-packaging*
 *Completed: 2026-07-24*
+
+## Self-Check: PASSED
+All created files (scripts/build-binary.js, tests/scripts/build-binary.test.js, this SUMMARY.md) confirmed present on disk. All 3 task/plan commits (c7109d5, 073c56f, 6bdef05) confirmed present in git log.
