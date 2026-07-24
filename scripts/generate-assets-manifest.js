@@ -30,7 +30,7 @@ function generateManifestSource(distDir) {
     throw new Error(`Cannot generate asset manifest: directory does not exist: ${distDir}`);
   }
 
-  const serverDir = path.join(__dirname, '..', 'server');
+  const serverDir = path.resolve(distDir, '..', '..', 'server');
   const files = walk(distDir).sort();
 
   const importLines = [];
