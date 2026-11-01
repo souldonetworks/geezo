@@ -27,7 +27,7 @@ Requirements for initial release. Each maps to roadmap phases. This is a retroac
 ### Live Agent Activity (ACT)
 
 - [x] **ACT-01**: Claude Code hook records PreToolUse/PostToolUse/Stop events for Task-type subagents
-- [x] **ACT-02**: Dashboard shows currently running subagents with type, description, elapsed time via SSE
+- [ ] **ACT-02**: Dashboard shows currently running subagents with type, description, elapsed time via SSE — automated paths pass; human UAT pending
 - [x] **ACT-03**: Stale status entries (>2 hours) are ignored/hidden
 - [x] **ACT-04**: Hook never throws/blocks the user's Claude Code session
 - [x] **ACT-05**: Roadmap view auto-refreshes when a subagent activity completes
@@ -49,7 +49,7 @@ Requirements for initial release. Each maps to roadmap phases. This is a retroac
 - [x] **UI-01**: User can view, filter and manage all registered projects in the portfolio table
 - [x] **UI-02**: User can view a project detail page with roadmap tree, running-now panel, and git panel
 - [x] **UI-03**: User can view/edit Settings (CLI tool, terminal app, command templates)
-- [x] **UI-04**: Each panel degrades independently on error (no whole-page crash)
+- [ ] **UI-04**: Each panel degrades independently on error (no whole-page crash) — automated paths pass; human UAT pending
 
 ### Single-Binary Packaging (PKG)
 
@@ -94,7 +94,7 @@ Which phases cover which requirements.
 | RM-05 | Phase 2 | Complete |
 | RM-06 | Phase 2 | Complete |
 | ACT-01 | Phase 3 | Complete |
-| ACT-02 | Phase 3 | Complete |
+| ACT-02 | Phase 3 | Pending UAT |
 | ACT-03 | Phase 3 | Complete |
 | ACT-04 | Phase 3 | Complete |
 | ACT-05 | Phase 3 | Complete |
@@ -107,7 +107,7 @@ Which phases cover which requirements.
 | UI-01 | Phase 6 | Complete |
 | UI-02 | Phase 6 | Complete |
 | UI-03 | Phase 6 | Complete |
-| UI-04 | Phase 6 | Complete |
+| UI-04 | Phase 6 | Pending UAT |
 | PKG-01 | Phase 7 | Complete |
 | PKG-02 | Phase 7 | Complete |
 | PKG-03 | Phase 7 | Complete |

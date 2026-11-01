@@ -2,63 +2,41 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 07
-status: completed
-stopped_at: Phase 07 verified complete
-last_updated: "2026-11-01T20:59:53.937231+00:00"
-last_activity: 2026-11-01
-last_activity_desc: Phase 07 gap closure verified; original roadmap complete
+current_phase: "07.1"
+status: human_needed
+stopped_at: Functional closure complete; Phase 03 and 06 UAT pending
+last_updated: "2026-11-01"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 12
+  completed_plans: 12
+  percent: 75
 ---
 
 # Project State
 
-## Project Reference
-
-See .planning/PROJECT.md (updated 2026-11-01).
-
-**Core value:** Check registered project progress and activity from the browser.
-**Current focus:** Original v1.0 roadmap complete; milestone audit and portfolio-pivot tracking reconciliation next.
-
 ## Current Position
 
-Phase: 07 (single-binary-packaging) — COMPLETE
-Plan: 5/5 complete
-Status: Verification passed, 6/6 roadmap truths; PKG-01 through PKG-07 complete.
-Last activity: 2026-11-01 — gap-closure execution and independent re-verification.
+Phase 07.1 functional closure is complete and independently verified. Original Phases 1, 2, 4, 5 and 7 pass; Phases 3 and 6 await human verification. All 12 recorded plans have summaries (including six clearly retrospective current-state verification plans).
 
-Progress: [██████████] 7/7 phases (100%). Phases 1–6 were recorded retroactively; five tracked plans belong to Phase 7.
+Milestone re-audit: 31/33 requirements satisfied, 2 partial due to human checks; 23/23 links and 12/12 main flows connected. No identified functional gap remains. Do not archive until Phase 03/06 UAT is complete.
 
-## Decisions
+## Completed This Session
 
-- Retained the existing lazy Node/Bun SQLite driver selection and its read-only cross-runtime test.
-- CLI serve disables disk frontend fallback and reads Bun embedded files as bytes.
-- Build remains additive; five distribution targets compile. Only darwin-arm64 executed on this host.
-- Native inline implementation preference retained; independent review verified the phase.
+- Added folder selection, success-criteria parsing/API/display and activity-completion refresh.
+- Fixed annotated-tag commit identity and displayed SHA; surfaced settings/scan failures.
+- Restored retrospective verification/validation records for Phases 1–6; reconciled approved portfolio changes.
+- Final suite 122 total: 121 pass, zero failures, one optional skip; separate actual native smoke 5/5 pass. All five distribution targets built.
+- User-requested one-time executive briefing acceptance: 139 newly accepted, 8 existing preserved, 147 total at verification. Future drafts remain unaccepted.
 
-## Verification
+## Pending Verification
 
-- Full suite: 114 passed, 0 failed, 0 skipped, including actual native distribution HTML/assets/API smoke tests.
-- Independent compiled hook and installer checks passed with isolated homes, exact backups and duplicate-registration prevention.
-- Reports: .planning/phases/07-single-binary-packaging/07-VERIFICATION.md and 07-REVIEW.md.
+`$gsd-verify-work 3`: real activity timing and completion refresh.
+`$gsd-verify-work 6`: visible portfolio/detail/settings and fault-isolation flow.
 
-## Blockers/Concerns
+Tests persisted in 03-UAT.md and 06-UAT.md. Milestone audit: .planning/v1.0-MILESTONE-AUDIT.md.
 
-No Phase 7 completion blocker. Six historical nonblocking review warnings remain documented in 07-REVIEW.md.
+## Known Debt
 
-New portfolio features were implemented after the original roadmap: executive briefings, lenses, descriptions, related search and daily All In. Their design/implementation records are under docs/superpowers/. They need reconciliation into the next milestone; Phase 7 completion does not claim a full audit of those features.
-
-## Pending Todos
-
-No pending todo artifacts recorded. Next: audit original milestone, then reconcile the portfolio pivot during next-milestone planning.
-
-## Session Continuity
-
-Last session: 2026-11-01T20:59:53.937231+00:00
-Stopped at: Phase 07 verified complete
-Resume file: None
+Six historical packaging warnings and event-driven activity elapsed/expiry behavior remain documented. No merge, push, tag or archive performed. Portfolio additions outside the original roadmap still need next-milestone reconciliation.

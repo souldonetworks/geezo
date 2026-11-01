@@ -12,7 +12,9 @@
 
 No repository changes from selecting folders. Absolute directory paths, errors/cancellation, empty lists, multiline criteria, phase boundaries, same-count activity replacement, stale navigation responses and subscription cleanup need checks. No GUI automation or real user settings changes in tests. Retain mascot. Scope excludes six existing packaging warnings.
 
-- [ ] Folder browser: test local listing and choose-before-add interaction; implement bounded listing and API/UI errors.
-- [ ] Success criteria: RED parser/renderer checks; support numbered/bullet items and continuation text; preserve per-phase boundaries.
-- [ ] Activity refresh: RED React interaction check; detect completion including same-count replacement; make detail refresh navigation-safe and manually available.
-- [ ] Verify full suite/build/compiled binary; reconcile approved requirement wording, restore evidence-bearing phase records, rerun independent integration audit. Record missing evidence honestly.
+- [x] Folder browser: test local listing and choose-before-add interaction; implement bounded listing and API/UI errors.
+- [x] Success criteria: RED parser/renderer checks; support numbered/bullet items and continuation text; preserve per-phase boundaries.
+- [x] Activity refresh: RED React interaction check; detect completion including same-count replacement; make detail refresh navigation-safe and manually available.
+- [x] Verify full suite/build/compiled binary; reconcile approved requirement wording, restore evidence-bearing phase records, rerun independent integration audit. Record missing evidence honestly.
+
+Functional implementation and independent verification complete; real-session/visual UAT remain explicitly pending, not waived.

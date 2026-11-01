@@ -13,10 +13,10 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
 
 - [x] **Phase 1: Project Registry & Discovery** - User can add, remove, and discover project folders in a persistent local registry
 - [x] **Phase 2: Roadmap & State Parsing** - Dashboard reads ROADMAP.md/STATE.md/gsd.db and computes progress for any registered project
-- [x] **Phase 3: Live Agent Activity** - Dashboard shows currently running Claude Code subagents in real time via hook + SSE
+- [ ] **Phase 3: Live Agent Activity** - Dashboard shows currently running Claude Code subagents in real time via hook + SSE
 - [x] **Phase 4: Git Milestone Detection** - Dashboard shows each project's newest pushed git tag with graceful fallback states
 - [x] **Phase 5: Convert-to-GSD Flow** - User can deliberately adopt GSD through a reviewed, guarded migration that preserves existing code and planning
-- [x] **Phase 6: Dashboard UI** - User can view/manage all of the above through a React dashboard, project detail page, and settings page
+- [ ] **Phase 6: Dashboard UI** - User can view/manage all of the above through a React dashboard, project detail page, and settings page
 - [x] **Phase 7: Single-Binary Packaging** - User can run the entire dashboard (including the hook) as one native executable with no Node.js install required (completed 2026-11-01)
 
 ## Phase Details
@@ -138,10 +138,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Project Registry & Discovery | Complete | Complete | 2026-07-24 (retroactive) |
 | 2. Roadmap & State Parsing | Complete | Complete | 2026-07-24 (retroactive) |
-| 3. Live Agent Activity | Complete | Complete | 2026-07-24 (retroactive) |
+| 3. Live Agent Activity | 1/1 retrospective | Human verification pending | — |
 | 4. Git Milestone Detection | Complete | Complete | 2026-07-24 (retroactive) |
 | 5. Convert-to-GSD Flow | Complete | Complete | 2026-07-24 (retroactive) |
-| 6. Dashboard UI | Complete | Complete | 2026-07-24 (retroactive) |
+| 6. Dashboard UI | 1/1 retrospective | Human verification pending | — |
 | 7. Single-Binary Packaging | 5/5 | Complete    | 2026-11-01 |
 
 ### Phase 07.1: Close original milestone integration gaps (INSERTED)
@@ -149,8 +149,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 **Goal:** Folder selection, complete success-criteria data and completion-triggered project refresh close the original audit failures.
 **Requirements**: REG-01, RM-01, ACT-05
 **Depends on:** Phase 7
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 
-- [ ] 07.1-01-PLAN.md — Close folder-selection, criteria and activity-refresh gaps
+- [x] 07.1-01-PLAN.md — Close folder-selection, criteria and activity-refresh gaps

@@ -1,10 +1,11 @@
 ---
 phase: 07
 slug: single-binary-packaging
-status: approved
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-07-24
+validated: 2026-11-01
 ---
 
 # Phase 07 — Validation Strategy
@@ -38,14 +39,14 @@ created: 2026-07-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 07-01-T1 | 07-01 | 1 | PKG-04 | — | `hooks/gsd-web-hook.js` exports `runHookFromStdin()`, reused by `hook` subcommand, `handle()` behavior unchanged | unit | `node --test tests/hooks/gsd-web-hook.test.js` (extended) | ✅ existing, extended | ⬜ pending |
-| 07-01-T2 | 07-01 | 1 | PKG-05 | T-07-04 | `scripts/install-hook.js` exports `installHooks(hookCommand, settingsPath)` with full-command-string signature, backup-before-write preserved | unit | `node --test tests/scripts/install-hook.test.js` (updated signature) | ✅ existing, signature updated | ⬜ pending |
-| 07-02-T1 | 07-02 | 1 | PKG-03 | — | `generateManifestSource(distDir)` produces correct `type: "file"` import statements + URL-path manifest against a fixture directory | unit | `node --test tests/scripts/generate-assets-manifest.test.js` (new) | ❌ W0 — new file | ⬜ pending |
-| 07-02-T2 | 07-02 | 1 | PKG-03 | — | Generator handles nested dirs, relative import paths, missing-dir error; `.gitignore` updated for `server/generatedAssets.mjs` + `dist-bin/` | unit | `node --test tests/scripts/generate-assets-manifest.test.js` | ❌ W0 — new file | ⬜ pending |
-| 07-03-T1 | 07-03 | 2 | PKG-01, PKG-06 | T-07-01, T-07-02, T-07-03 | `server/cli.js` dispatches serve/hook/install-hook, `--help`/no-args/`--version`/unknown-command; `--port`/`--host` validated; missing `generatedAssets.mjs` produces explicit error via `serveEmbeddedAsset()`, not a crash | unit | `node -e "const cli = require('./server/cli'); ..."` (load-time check) + `node --test tests/server/cli.test.js` | ❌ W0 — new file | ⬜ pending |
-| 07-03-T2 | 07-03 | 2 | PKG-01, PKG-05, PKG-06 | T-07-01, T-07-02, T-07-03 | `dispatch()` subcommand routing, `resolvePort`/`resolveHost` precedence, unknown-command exit 1, invalid-port rejection, `install-hook` uses `process.execPath` (not `argv[1]`), `serveEmbeddedAsset` catch branch fires (console.error + process.exit(1) stub) | unit | `node --test tests/server/cli.test.js` | ❌ W0 — new file | ⬜ pending |
-| 07-04-T1 | 07-04 | 3 | PKG-02 | T-07-SC | `scripts/build-binary.js` exports `getTargets()` (5 correctly-named platform targets) and `checkBunAvailable()`; fail-fast per-target build loop with D-12 friendly bun-missing error | unit | `node -e "const b = require('./scripts/build-binary'); ..."` | ❌ W0 — new file | ⬜ pending |
-| 07-04-T2 | 07-04 | 3 | PKG-02, PKG-07 | — | `getTargets()`/`checkBunAvailable()` unit-tested; `package.json` gains exactly one `build:binary` entry, all 7 existing scripts byte-identical; full suite green | unit + regression | `node --test tests/scripts/build-binary.test.js && npm test` | ❌ W0 — new file | ⬜ pending |
+| 07-01-T1 | 07-01 | 1 | PKG-04 | — | `hooks/gsd-web-hook.js` exports `runHookFromStdin()`, reused by `hook` subcommand, `handle()` behavior unchanged | unit | `node --test tests/hooks/gsd-web-hook.test.js` (extended) | ✅ existing, extended | ✅ green |
+| 07-01-T2 | 07-01 | 1 | PKG-05 | T-07-04 | `scripts/install-hook.js` exports `installHooks(hookCommand, settingsPath)` with full-command-string signature, backup-before-write preserved | unit | `node --test tests/scripts/install-hook.test.js` (updated signature) | ✅ existing, signature updated | ✅ green |
+| 07-02-T1 | 07-02 | 1 | PKG-03 | — | `generateManifestSource(distDir)` produces correct `type: "file"` import statements + URL-path manifest against a fixture directory | unit | `node --test tests/scripts/generate-assets-manifest.test.js` (new) | ✅ present, tested | ✅ green |
+| 07-02-T2 | 07-02 | 1 | PKG-03 | — | Generator handles nested dirs, relative import paths, missing-dir error; `.gitignore` updated for `server/generatedAssets.mjs` + `dist-bin/` | unit | `node --test tests/scripts/generate-assets-manifest.test.js` | ✅ present, tested | ✅ green |
+| 07-03-T1 | 07-03 | 2 | PKG-01, PKG-06 | T-07-01, T-07-02, T-07-03 | `server/cli.js` dispatches serve/hook/install-hook, `--help`/no-args/`--version`/unknown-command; `--port`/`--host` validated; missing `generatedAssets.mjs` produces explicit error via `serveEmbeddedAsset()`, not a crash | unit | `node -e "const cli = require('./server/cli'); ..."` (load-time check) + `node --test tests/server/cli.test.js` | ✅ present, tested | ✅ green |
+| 07-03-T2 | 07-03 | 2 | PKG-01, PKG-05, PKG-06 | T-07-01, T-07-02, T-07-03 | `dispatch()` subcommand routing, `resolvePort`/`resolveHost` precedence, unknown-command exit 1, invalid-port rejection, `install-hook` uses `process.execPath` (not `argv[1]`), `serveEmbeddedAsset` catch branch fires (console.error + process.exit(1) stub) | unit | `node --test tests/server/cli.test.js` | ✅ present, tested | ✅ green |
+| 07-04-T1 | 07-04 | 3 | PKG-02 | T-07-SC | `scripts/build-binary.js` exports `getTargets()` (5 correctly-named platform targets) and `checkBunAvailable()`; fail-fast per-target build loop with D-12 friendly bun-missing error | unit | `node -e "const b = require('./scripts/build-binary'); ..."` | ✅ present, tested | ✅ green |
+| 07-04-T2 | 07-04 | 3 | PKG-02, PKG-07 | — | `getTargets()`/`checkBunAvailable()` unit-tested; `package.json` gains exactly one `build:binary` entry, all 7 existing scripts byte-identical; full suite green | unit + regression | `node --test tests/scripts/build-binary.test.js && npm test` | ✅ present, tested | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 *Manual/smoke-only behaviors (compiled binary execution across all 5 platforms, PKG-02) are tracked separately in "Manual-Only Verifications" below, not in this automated map.*
@@ -54,12 +55,12 @@ created: 2026-07-24
 
 ## Wave 0 Requirements
 
-- [ ] `tests/server/cli.test.js` — covers PKG-01 (subcommand dispatch, `--help`, unknown command → exit 1), PKG-06 (missing-assets error path via direct `serveEmbeddedAsset` invocation), and `--port`/`--host` validation (07-03)
-- [ ] `tests/scripts/generate-assets-manifest.test.js` — covers PKG-03's manifest-generation logic against a small fixture directory (not a real Vite build) (07-02)
-- [ ] `tests/scripts/build-binary.test.js` — covers PKG-02's `getTargets()`/`checkBunAvailable()` pure logic (07-04)
-- [ ] Extend `tests/hooks/gsd-web-hook.test.js` — add `runHookFromStdin()` coverage (PKG-04) (07-01)
-- [ ] Update `tests/scripts/install-hook.test.js` — existing tests call `mergeHookConfig({}, '/path/to/gsd-web-hook.js')` and assert `command === 'node /path/to/gsd-web-hook.js'`; updated for the new signature where the second parameter is a full command string (e.g. `"node /abs/path/hooks/gsd-web-hook.js"` or `"/abs/path/to/binary hook"`) (07-01)
-- [ ] No test framework install needed — `node:test` is already in use project-wide
+- [x] `tests/server/cli.test.js` — covers PKG-01 (subcommand dispatch, `--help`, unknown command → exit 1), PKG-06 (missing-assets error path via direct `serveEmbeddedAsset` invocation), and `--port`/`--host` validation (07-03)
+- [x] `tests/scripts/generate-assets-manifest.test.js` — covers PKG-03's manifest-generation logic against a small fixture directory (not a real Vite build) (07-02)
+- [x] `tests/scripts/build-binary.test.js` — covers PKG-02's `getTargets()`/`checkBunAvailable()` pure logic (07-04)
+- [x] Extend `tests/hooks/gsd-web-hook.test.js` — add `runHookFromStdin()` coverage (PKG-04) (07-01)
+- [x] Update `tests/scripts/install-hook.test.js` — existing tests call `mergeHookConfig({}, '/path/to/gsd-web-hook.js')` and assert `command === 'node /path/to/gsd-web-hook.js'`; updated for the new signature where the second parameter is a full command string (e.g. `"node /abs/path/hooks/gsd-web-hook.js"` or `"/abs/path/to/binary hook"`) (07-01)
+- [x] No test framework install needed — `node:test` is already in use project-wide
 
 ---
 
@@ -109,4 +110,13 @@ created: 2026-07-24
 - [x] Feedback latency < 10s
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** approved
+**Approval:** validated against current code/tests and 07-VERIFICATION.md; not a claim of historical task sampling.
+
+
+## Evidence Reconciliation — 2026-11-01
+
+The former approved/pending strategy contradicted completed implementation. Each automated-map file exists and its named cases appear green in the saved current full run (/tmp/geezo-closure-full.log: 121 total, 120 passed, zero failures, one optional compiled test skipped). This is a retrospective validation update, not reconstructed historical per-task sampling. Existing 07-VERIFICATION.md independently documents owned-asset lookup, SQLite parity, missing-assets and compiled hook/installer checks with isolated settings and exact backups.
+
+Current /tmp/geezo-closure-native.log explicitly executes the real distribution smoke: 5/5 passed, no skips, including health/embedded resources outside checkout and valid/malformed hook stdin. /tmp/geezo-closure-binaries.log records all five target compiles including frontend build. Cross-target runtime execution remains unverified and was never the local five-build requirement. The native installer result is the prior independent verification evidence, not one of those five new smoke cases.
+
+The automated task map is now green on actual evidence. Original manual instructions above remain a reference; only native execution and cross-target compilation/formats are evidenced, not execution on every OS. No visual screenshot claimed. Retain 07-REVIEW.md warnings (especially installed path spaces); validation does not silently fix them. Interactive dev/start are supported by unchanged scripts/source and regression evidence, not a newly observed manual session.

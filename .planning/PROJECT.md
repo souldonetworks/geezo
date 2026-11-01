@@ -26,7 +26,7 @@ You can check any registered GSD project's phase progress, current status, and l
 - ✓ **RM-05**: Missing/malformed files degrade gracefully without hard errors — shipped
 - ✓ **RM-06**: User can manually refresh roadmap/progress view — shipped
 - ✓ **ACT-01**: Claude Code hook records PreToolUse/PostToolUse/Stop events for Task-type subagents — shipped
-- ✓ **ACT-02**: Dashboard shows currently running subagents with type, description, elapsed time via SSE — shipped
+- [ ] **ACT-02**: Dashboard shows currently running subagents with type, description, elapsed time via SSE — shipped — automated paths pass; human UAT pending
 - ✓ **ACT-03**: Stale status entries (>2 hours) are ignored/hidden — shipped
 - ✓ **ACT-04**: Hook never throws/blocks the user's Claude Code session — shipped
 - ✓ **ACT-05**: Roadmap view auto-refreshes when a subagent activity completes — shipped
@@ -39,7 +39,7 @@ You can check any registered GSD project's phase progress, current status, and l
 - ✓ **UI-01**: User can view, filter and manage all registered projects in the portfolio table
 - ✓ **UI-02**: User can view a project detail page with roadmap tree, running-now panel, and git panel — shipped
 - ✓ **UI-03**: User can view/edit Settings (CLI tool, terminal app, command templates) — shipped
-- ✓ **UI-04**: Each panel degrades independently on error (no whole-page crash) — shipped
+- [ ] **UI-04**: Each panel degrades independently on error (no whole-page crash) — shipped — automated paths pass; human UAT pending
 
 - ✓ **PKG-01**: A unified CLI entrypoint (`server/cli.js`) supports `serve`/`hook`/`install-hook` subcommands — validated in Phase 7 (2026-11-01)
 - ✓ **PKG-02**: `npm run build:binary` compiles the dashboard into single-file executables for `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`, `windows-x64` via `bun build --compile` — validated in Phase 7 (2026-11-01)
