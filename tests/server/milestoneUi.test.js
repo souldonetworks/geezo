@@ -53,3 +53,10 @@ test('activity completion refetches detail roadmap, including same-count replace
  const phase=root.root.findByProps({className:'stat'});await act(async()=>phase.props.onClick());
  assert.match(JSON.stringify(root.toJSON()),/A visible outcome/);
 });
+
+test('git milestone displays the resolved commit SHA', async t => {
+ const Panel=await load('components/GitMilestonePanel.jsx');let root;
+ t.after(()=>{if(root)act(()=>root.unmount());});
+ await act(async()=>{root=renderer.create(React.createElement(Panel,{git:{status:'ok',tag:'v1',date:'today',message:'Release',commitSha:'0123456789abcdef'}}));});
+ assert.equal(root.root.findByType('code').children.join(''),'0123456789abcdef');
+});

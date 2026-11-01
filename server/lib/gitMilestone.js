@@ -23,7 +23,7 @@ function getMilestone(repoPath) {
     tagLines = git(repoPath, [
       'for-each-ref',
       '--sort=-creatordate',
-      '--format=%(refname:short)|%(creatordate:iso-strict)|%(contents:subject)|%(objectname)',
+      '--format=%(refname:short)%00%(creatordate:iso-strict)%00%(contents:subject)',
       'refs/tags',
     ]);
   } catch {
@@ -33,9 +33,10 @@ function getMilestone(repoPath) {
   if (!tagLines) return { status: 'no-tags' };
 
   for (const line of tagLines.split('\n').filter(Boolean)) {
-    const [tag, date, message, commitSha] = line.split('|');
+    const [tag, date, message] = line.split('\0');
     try {
-      execFileSync('git', ['merge-base', '--is-ancestor', tag, upstream], { cwd: repoPath });
+      execFileSync('git', ['merge-base', '--is-ancestor', `refs/tags/${tag}`, upstream], { cwd: repoPath });
+      const commitSha = git(repoPath, ['rev-parse', '--verify', `refs/tags/${tag}^{commit}`]);
       return { status: 'ok', tag, date, message, commitSha };
     } catch {
       continue;

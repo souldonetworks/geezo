@@ -40,7 +40,7 @@ test('getMilestone finds the newest tag reachable from the remote-tracking branc
   fs.writeFileSync(path.join(dir, 'a.txt'), 'a');
   run(dir, ['add', 'a.txt']);
   run(dir, ['commit', '-q', '-m', 'first commit']);
-  run(dir, ['tag', '-a', 'v1.0.0', '-m', 'first release']);
+  run(dir, ['tag', '-a', 'v1.0.0', '-m', 'first release | deployment notes']);
   fs.writeFileSync(path.join(dir, 'b.txt'), 'b');
   run(dir, ['add', 'b.txt']);
   run(dir, ['commit', '-q', '-m', 'second commit']);
@@ -51,5 +51,7 @@ test('getMilestone finds the newest tag reachable from the remote-tracking branc
   const result = getMilestone(dir);
   assert.equal(result.status, 'ok');
   assert.equal(result.tag, 'v1.0.0');
-  assert.equal(result.message, 'first release');
+  assert.equal(result.message, 'first release | deployment notes');
+  assert.equal(result.commitSha, execFileSync('git',['rev-parse','v1.0.0^{commit}'],{cwd:dir,encoding:'utf8'}).trim());
+  assert.notEqual(result.commitSha, execFileSync('git',['rev-parse','v1.0.0'],{cwd:dir,encoding:'utf8'}).trim());
 });

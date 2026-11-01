@@ -16,6 +16,7 @@ export default function GitMilestonePanel({ git }) {
       <div className="empty-state" style={{ marginTop: 'var(--gap-xs)' }}>
         {git.date}
       </div>
+      <p>Commit <code>{git.commitSha}</code></p>
     </div>
   );
 }
