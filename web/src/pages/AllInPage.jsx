@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   getAllIn,
@@ -23,6 +23,13 @@ export default function AllInPage() {
   const [workspaces, setWorkspaces] = useState([]);
   const [review, setReview] = useState(null);
   const [plan, setPlan] = useState(null);
+  const reviewRef = useRef(null);
+  const [reviewRequest, setReviewRequest] = useState(0);
+  useEffect(() => {
+    if (!reviewRequest || !reviewRef.current) return;
+    reviewRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    reviewRef.current.focus({ preventScroll: true });
+  }, [reviewRequest]);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -70,6 +77,7 @@ export default function AllInPage() {
     setPlan(null);
   }
   function openReview(proposal) {
+    setReviewRequest((n) => n + 1);
     const names = proposal.projectIds.map((id) =>
       report.sourceProjects.find((p) => p.id === id),
     );
@@ -384,9 +392,11 @@ export default function AllInPage() {
           </section>
         )}
         {review && (
-          <section className="card workspace-review">
+          <section className="card workspace-review" ref={reviewRef} tabIndex={-1} aria-labelledby="workspace-review-title">
             <p className="eyebrow">REVIEW BEFORE APPLYING</p>
-            <h2>Create a linked workspace</h2>
+            <h2 id="workspace-review-title">Create a linked workspace</h2>
+            <button className="btn btn-secondary" onClick={() => { setReview(null); setPlan(null); setError(""); }}>Close review</button>
+            {error && <p className="error-banner" role="alert">{error}</p>}
             <p>
               The original repositories stay where they are. This creates a new
               product workspace, links, description and proposed integration
