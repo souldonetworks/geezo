@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { dispatch, resolvePort, resolveHost, serveEmbeddedAsset } = require('../../server/cli');
+const { dispatch, resolvePort, resolveHost, serveEmbeddedAsset, resolveAssetPath } = require('../../server/cli');
 const pkg = require('../../package.json');
 
 function captureConsole(fn) {
@@ -118,4 +118,27 @@ test('serveEmbeddedAsset prints friendly error and exits 1 when generatedAssets.
     process.exit = originalExit;
     console.error = originalError;
   }
+});
+
+
+test('asset resolution accepts only own string paths and safely falls back', () => {
+  const manifest = Object.assign(Object.create({ '/inherited': '/unsafe', '/constructor': Object }), {
+    '/index.html': '/tmp/index.html', '/app.js': '/tmp/app.js', '/invalid': {},
+  });
+  assert.equal(resolveAssetPath(manifest, '/app.js'), '/tmp/app.js');
+  for (const requested of ['/constructor', '/__proto__', '/inherited', '/invalid', '/missing']) {
+    assert.equal(resolveAssetPath(manifest, requested), '/tmp/index.html');
+  }
+  assert.equal(resolveAssetPath({}, '/missing'), undefined);
+  assert.equal(resolveAssetPath(Object.create({ '/index.html': '/unsafe' }), '/missing'), undefined);
+  assert.equal(resolveAssetPath({ '/index.html': {} }, '/missing'), undefined);
+});
+
+test('embedded assets return 404 when no safe file path exists', async () => {
+  let status, ended = false, sent = false;
+  const res = { status(code) { status = code; return this; }, end() { ended = true; }, sendFile() { sent = true; } };
+  await serveEmbeddedAsset({ path: '/constructor' }, res, async () => ({ manifest: {} }));
+  assert.equal(status, 404);
+  assert.equal(ended, true);
+  assert.equal(sent, false);
 });
