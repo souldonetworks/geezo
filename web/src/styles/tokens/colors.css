@@ -1,36 +1,29 @@
-/* GSD Design System – Colors */
 :root {
-  /* Primary green (Solaris terminal aesthetic) */
-  --color-primary: #00ff00;
-  --color-primary-dark: #00cc00;
-  --color-primary-light: #33ff33;
-
-  /* Neutrals (greenscreen monochrome) */
-  --color-bg-primary: #001100;
-  --color-bg-secondary: #002200;
-  --color-bg-tertiary: #003300;
-  --color-fg-primary: #00ff00;
-  --color-fg-secondary: #00cc00;
-  --color-fg-tertiary: #008800;
-
-  /* Semantic colors */
-  --color-success: #00ff00;
-  --color-warning: #ffaa00;
-  --color-error: #ff3300;
-  --color-info: #00ffff;
-
-  /* Accent: amber/orange for highlights */
-  --color-accent: #ffaa00;
-  --color-accent-dark: #ff8800;
-
-  /* Text colors */
-  --color-text-primary: #00ff00;
-  --color-text-secondary: #00aa00;
-  --color-text-disabled: #004400;
-  --color-text-inverse: #001100;
-
-  /* Border colors */
-  --color-border-primary: #00ff00;
-  --color-border-secondary: #006600;
-  --color-border-disabled: #003300;
+  --color-primary: #ae4525;
+  --color-primary-dark: #87351d;
+  --color-primary-light: #c05632;
+  --color-bg-primary: #f4f0e7;
+  --color-bg-secondary: #fffcf6;
+  --color-bg-tertiary: #eae4d8;
+  --color-fg-primary: #282827;
+  --color-fg-secondary: #565953;
+  --color-fg-tertiary: #66645e;
+  --color-success: #2f6752;
+  --color-warning: #946717;
+  --color-error: #a2352c;
+  --color-info: #365f83;
+  --color-accent: #e4b642;
+  --color-accent-dark: #b78b23;
+  --color-text-primary: #282827;
+  --color-text-secondary: #62635d;
+  --color-text-disabled: #76736b;
+  --color-text-inverse: #fffaf3;
+  --color-border-primary: #c8bead;
+  --color-border-secondary: #dcd4c6;
+  --color-border-disabled: #e6dfd3;
+  --navy: #192c40;
+  --paper: #f4f0e7;
+  --ink: #282827;
+  --orange: #ae4525;
+  --line: #dcd4c6;
 }

@@ -224,3 +224,131 @@ test("editing a newer analysis revision preserves its ancestry with an independe
     (e) => e.code === "REVISION_CONFLICT",
   );
 });
+
+test("technical assessment separates inspection from historical checks and validates capability citations", () => {
+  const { validateBrief } = require("../../server/lib/briefSchema");
+  const assessment = {
+    summary: "Source inspection only.",
+    capabilities: [
+      {
+        capability: "Preview",
+        status: "implemented",
+        verification: "tested",
+        evidenceRefs: ["README.md:1"],
+        limitations: "Unknown runtime behavior",
+        reuseApproach: "Inspect existing path",
+      },
+    ],
+    investmentTiers: [],
+    limitations: ["No tests executed"],
+  };
+  assert.throws(
+    () =>
+      validateBrief(
+        { ...brief(), assessment },
+        { files: [{ path: "README.md", lines: 1 }] },
+      ),
+    (e) => e.code === "INVALID_BRIEF",
+  );
+  assessment.capabilities[0].verification = "inspected only";
+  assert.doesNotThrow(() =>
+    validateBrief(
+      { ...brief(), assessment },
+      { files: [{ path: "README.md", lines: 1 }] },
+    ),
+  );
+  assessment.capabilities[0].evidenceRefs = ["outside.md:1"];
+  assert.throws(
+    () =>
+      validateBrief(
+        { ...brief(), assessment },
+        { files: [{ path: "README.md", lines: 1 }] },
+      ),
+    (e) => e.code === "INVALID_BRIEF",
+  );
+});
+
+test("malformed display fields cannot turn a completed assessment into a broken page", () => {
+  const { validateBrief } = require("../../server/lib/briefSchema");
+  const assessment = {
+    summary: "Source inspection only",
+    capabilities: [
+      {
+        capability: "Preview",
+        component: { bad: true },
+        status: "unknown",
+        verification: "not verified",
+        verificationDetail: "No tests run",
+        evidenceRefs: [],
+        limitations: "Unknown",
+        reuseApproach: "Inspect",
+      },
+    ],
+    investmentTiers: [],
+    limitations: ["No tests executed"],
+  };
+  assert.throws(
+    () => validateBrief({ ...brief(), assessment }),
+    (e) => e.code === "INVALID_BRIEF",
+  );
+  assessment.capabilities[0].component = "controller";
+  assessment.capabilities[0].verificationDetail = { bad: true };
+  assert.throws(
+    () => validateBrief({ ...brief(), assessment }),
+    (e) => e.code === "INVALID_BRIEF",
+  );
+  assessment.capabilities[0].verificationDetail = "No tests run";
+  assessment.investmentTiers = [
+    {
+      tier: "experiment",
+      scope: "One action",
+      effort: "unknown",
+      confidence: "unknown",
+      evidenceRefs: [],
+      acceptance: { bad: true },
+    },
+  ];
+  assert.throws(
+    () => validateBrief({ ...brief(), assessment }),
+    (e) => e.code === "INVALID_BRIEF",
+  );
+});
+test("Markdown export retains historical verification limits and proposed acceptance gates", () => {
+  const { exportMarkdown } = require("../../server/lib/briefSchema");
+  const b = brief();
+  b.assessment = {
+    summary: "Historical inspection",
+    capabilities: [
+      {
+        capability: "Preview",
+        component: "controller.go",
+        status: "partial",
+        verification: "historical tests reported",
+        verificationDetail: "Only fake targets; real Puppet was never tested",
+        evidenceRefs: ["ASSESSMENT.md:8"],
+        limitations: "No real deployment",
+        reuseApproach: "Reproduce lab",
+      },
+    ],
+    investmentTiers: [
+      {
+        tier: "experiment",
+        scope: "One action",
+        effort: "unknown",
+        confidence: "unknown",
+        acceptance: "Reject stale approval before target dispatch",
+        evidenceRefs: ["ASSESSMENT.md:12"],
+      },
+    ],
+    limitations: ["Source reports only"],
+  };
+  const output = exportMarkdown({
+    id: "example",
+    brief: b,
+    promptVersion: "executive-review-v1+assessment-v2",
+  });
+  assert.match(output, /Only fake targets; real Puppet was never tested/);
+  assert.match(output, /controller.go/);
+  assert.match(output, /Reject stale approval before target dispatch/);
+  assert.match(output, /ASSESSMENT.md:12/);
+});

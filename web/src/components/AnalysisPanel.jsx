@@ -4,7 +4,7 @@ import {
   startAnalysis,
   startPortfolioAnalysis,
   getAnalysisJob,
-  listProjects,
+  listBriefings,
 } from "../api";
 export default function AnalysisPanel({ projectId, onCompleted }) {
   const [config, setConfig] = useState(null);
@@ -16,7 +16,7 @@ export default function AnalysisPanel({ projectId, onCompleted }) {
     getAnalysisConfiguration()
       .then((c) => live && setConfig(c))
       .catch((e) => live && setError(e.message));
-    listProjects()
+    listBriefings()
       .then((projects) => {
         if (live)
           setJobs(
@@ -63,7 +63,7 @@ export default function AnalysisPanel({ projectId, onCompleted }) {
     try {
       if (projectId) setJobs([await startAnalysis(projectId)]);
       else {
-        const projects = await listProjects();
+        const projects = await listBriefings();
         setJobs(
           await startPortfolioAnalysis(
             projects
@@ -80,16 +80,23 @@ export default function AnalysisPanel({ projectId, onCompleted }) {
   }
   return (
     <section className="card">
-      <h3>executive analysis</h3>
+      <h3>Run the portfolio assessment</h3>
+      <p>
+        The same framework used in Geezer: capability, reuse, verification
+        limits, investment tiers and executive questions. No project commands
+        are executed.
+      </p>
       {config && (
         <>
           <p>
-            Provider: {config.adapter} · {config.executable}
+            Provider:{" "}
+            {config.adapter === "codex" ? "ChatGPT (Codex)" : config.adapter} ·{" "}
+            {config.executable}
           </p>
           <p className="muted">{config.dataHandling}</p>
           {!config.supported && (
             <p role="alert">
-              This adapter is unsupported. Select Claude in Settings.
+              Choose a supported analysis provider in Settings.
             </p>
           )}
           <button

@@ -118,6 +118,86 @@ function validateBrief(value, evidence) {
     )
       invalid("Commercial attribution must cite collected evidence");
   }
+  if (value.suggestedTags !== undefined) {
+    if (
+      !Array.isArray(value.suggestedTags) ||
+      value.suggestedTags.length > 16 ||
+      !value.suggestedTags.every(
+        (tag) =>
+          typeof tag === "string" &&
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(tag) &&
+          tag.length <= 40,
+      )
+    )
+      invalid("Invalid suggested project tags");
+  }
+  if (value.assessment) {
+    const a = value.assessment;
+    if (
+      typeof a.summary !== "string" ||
+      !a.summary.trim() ||
+      !Array.isArray(a.capabilities) ||
+      a.capabilities.length > 50 ||
+      !Array.isArray(a.investmentTiers) ||
+      !Array.isArray(a.limitations) ||
+      !a.limitations.length ||
+      !a.limitations.every((v) => typeof v === "string" && v.trim())
+    )
+      invalid("Invalid technical assessment");
+    for (const row of a.capabilities) {
+      if (
+        !row ||
+        typeof row.capability !== "string" ||
+        ![
+          "implemented",
+          "partial",
+          "planned only",
+          "missing",
+          "unknown",
+        ].includes(row.status) ||
+        ![
+          "inspected only",
+          "historical tests reported",
+          "not verified",
+        ].includes(row.verification) ||
+        typeof row.limitations !== "string" ||
+        typeof row.reuseApproach !== "string" ||
+        (row.component !== undefined && typeof row.component !== "string") ||
+        (row.verificationDetail !== undefined &&
+          typeof row.verificationDetail !== "string") ||
+        !Array.isArray(row.evidenceRefs)
+      )
+        invalid("Invalid capability status or verification boundary");
+      if (
+        (row.status === "implemented" ||
+          row.verification === "historical tests reported") &&
+        !row.evidenceRefs.length
+      )
+        invalid("Implementation and historical verification require evidence");
+      if (
+        evidence &&
+        !row.evidenceRefs.every((ref) => validReference(ref, evidence))
+      )
+        invalid("Invalid capability citation");
+    }
+    for (const row of a.investmentTiers) {
+      if (
+        !row ||
+        !["experiment", "pilot", "production", "optional"].includes(row.tier) ||
+        typeof row.scope !== "string" ||
+        typeof row.effort !== "string" ||
+        typeof row.confidence !== "string" ||
+        (row.acceptance !== undefined && typeof row.acceptance !== "string") ||
+        !Array.isArray(row.evidenceRefs)
+      )
+        invalid("Invalid investment tier");
+      if (
+        evidence &&
+        !row.evidenceRefs.every((ref) => validReference(ref, evidence))
+      )
+        invalid("Invalid investment citation");
+    }
+  }
   return JSON.parse(JSON.stringify(value));
 }
 function exportMarkdown(revision) {
@@ -141,6 +221,26 @@ function exportMarkdown(revision) {
             : "**unknown**: No evidence recorded."),
       )
       .join("\n\n") +
+    (b.assessment
+      ? `\n\n## Technical assessment\n\n${b.assessment.summary}\n\n` +
+        b.assessment.capabilities
+          .map(
+            (c) =>
+              `- ${c.capability} (${c.component || "component unknown"}): ${c.status}; ${c.verification}. Verification scope: ${c.verificationDetail || "not established"}. ${c.limitations} Reuse: ${c.reuseApproach} (${c.evidenceRefs.join(", ")})`,
+          )
+          .join("\n") +
+        `\n\n## Investment tiers\n\n` +
+        b.assessment.investmentTiers
+          .map(
+            (t) =>
+              `- ${t.tier}: ${t.scope}; effort: ${t.effort}; confidence: ${t.confidence}; proposed acceptance: ${t.acceptance || "unknown"} (${t.evidenceRefs.join(", ")})`,
+          )
+          .join("\n") +
+        `\n\nLimits: ${b.assessment.limitations.join(" ")}`
+      : "") +
+    (revision.provenance
+      ? `\n\nSource provenance: ${JSON.stringify(revision.provenance)}`
+      : "") +
     `\n\nRevision: ${revision.id}\nPrompt: ${revision.promptVersion}\n`
   );
 }

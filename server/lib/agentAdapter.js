@@ -62,9 +62,7 @@ function runAgent(
     child.on("close", (code) =>
       done(
         failure ||
-          (code !== 0
-            ? new Error(`Agent exited ${code}: ${diagnostics.slice(-2000)}`)
-            : null),
+          (code !== 0 ? providerFailure(code, output, diagnostics) : null),
       ),
     );
     child.stdin.on("error", () => {});
@@ -73,13 +71,37 @@ function runAgent(
   });
 }
 function analysisArguments(settings) {
+  if (settings.adapter === "codex")
+    return [
+      "exec",
+      "--ignore-user-config",
+      "--ignore-rules",
+      "--skip-git-repo-check",
+      "--ephemeral",
+      "--sandbox",
+      "read-only",
+      "--json",
+      ...[
+        "shell_tool",
+        "multi_agent",
+        "apps",
+        "plugins",
+        "hooks",
+        "skill_search",
+        "image_generation",
+        "goals",
+        "sleep_tool",
+        "tool_suggest",
+        "view_image",
+      ].flatMap((feature) => ["--disable", feature]),
+      "-c",
+      "project_doc_max_bytes=0",
+      "-c",
+      'web_search="disabled"',
+      "-",
+    ];
   if (settings.adapter !== "claude")
-    throw Object.assign(
-      new Error(
-        "Only the Claude tool-free adapter is currently supported. Select Claude in Settings; Codex requires a verified tool-free adapter.",
-      ),
-      { code: "UNSUPPORTED_ADAPTER" },
-    );
+    throw new Error("Unsupported analysis adapter");
   return [
     "--print",
     "--output-format",
@@ -95,10 +117,95 @@ function analysisArguments(settings) {
     '{"disableAllHooks":true}',
   ];
 }
+function providerFailure(code, output, diagnostics) {
+  let detail = diagnostics;
+  try {
+    const value = JSON.parse(output);
+    if (value.is_error) detail = value.result || value.error || detail;
+  } catch {
+    try {
+      const errors = output
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => JSON.parse(line))
+        .filter(
+          (event) =>
+            event.type === "error" ||
+            event.type === "turn.failed" ||
+            event.item?.type === "error",
+        );
+      detail =
+        errors
+          .map(
+            (event) =>
+              event.message ||
+              event.error?.message ||
+              event.item?.message ||
+              "",
+          )
+          .join("\n") || detail;
+    } catch {}
+  }
+  return classifyProviderError(
+    `Agent exited ${code}: ${String(detail || "Provider returned no diagnostic message").slice(-2000)}`,
+  );
+}
+function classifyProviderError(message) {
+  const error = new Error(String(message));
+  if (
+    /not logged in|please.*login|authenticate|invalid api key|unauthorized/i.test(
+      error.message,
+    )
+  )
+    error.code = "PROVIDER_AUTH_REQUIRED";
+  else if (
+    /rate limit|usage limit|credit balance|quota|429/i.test(error.message)
+  )
+    error.code = "PROVIDER_UNAVAILABLE";
+  return error;
+}
+
 function parseAgentOutput(output) {
-  let value = JSON.parse(output);
+  let value;
+  try {
+    value = JSON.parse(output);
+  } catch {
+    const events = output
+      .split("\n")
+      .filter((line) => line.trim())
+      .map((line) => JSON.parse(line));
+    for (const event of events) {
+      if (
+        event.item &&
+        !["agent_message", "reasoning", "error"].includes(event.item.type)
+      )
+        throw new Error(
+          "Unexpected tool activity during source-only assessment",
+        );
+      if (
+        event.type === "turn.failed" ||
+        event.type === "error" ||
+        event.item?.type === "error"
+      )
+        throw classifyProviderError(
+          event.error?.message ||
+            event.message ||
+            event.item?.message ||
+            "Provider failed",
+        );
+    }
+    const messages = events.filter(
+      (event) =>
+        event.type === "item.completed" && event.item?.type === "agent_message",
+    );
+    if (!messages.length)
+      throw new Error("Provider returned no final assessment");
+    value = JSON.parse(
+      messages.at(-1).item.text.replace(/^```(?:json)?\s*|\s*```$/g, ""),
+    );
+  }
   if (value.is_error)
-    throw new Error(value.result || "Agent reported an error");
+    throw classifyProviderError(value.result || "Agent reported an error");
   if (value.structured_output) value = value.structured_output;
   else if (typeof value.result === "string")
     value = JSON.parse(value.result.replace(/^```(?:json)?\s*|\s*```$/g, ""));

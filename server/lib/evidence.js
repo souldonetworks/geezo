@@ -136,7 +136,16 @@ function collectEvidence(projectPath, options = {}) {
 }
 function compareEvidence(before, current) {
   if (!before?.complete || !current.complete) return "possibly-stale";
-  return before.fingerprint === current.fingerprint ? "fresh" : "stale";
+  let fingerprint = current.fingerprint;
+  if (before.scope?.paths) {
+    const files = current.files.filter((file) =>
+      before.scope.paths.includes(file.path),
+    );
+    fingerprint = hash(
+      JSON.stringify(files.map((file) => [file.path, file.hash])),
+    );
+  }
+  return before.fingerprint === fingerprint ? "fresh" : "stale";
 }
 function evidencePath(projectId, id) {
   if (!/^[a-zA-Z0-9-]+$/.test(projectId) || !/^[a-zA-Z0-9-]+$/.test(id))

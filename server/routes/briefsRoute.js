@@ -49,16 +49,16 @@ function createBriefsRouter() {
         throw Object.assign(new Error("Base evidence snapshot unavailable"), {
           code: "INVALID_BRIEF",
         });
-      res
-        .status(201)
-        .json(
-          store.createRevision(req.params.id, {
-            ...req.body,
-            source: "human",
-            evidenceId: parent?.evidenceId || null,
-            evidence,
-          }),
-        );
+      res.status(201).json(
+        store.createRevision(req.params.id, {
+          ...req.body,
+          source: "human",
+          evidenceId: parent?.evidenceId || null,
+          evidence,
+          provenance: parent?.provenance || null,
+          promptVersion: parent?.promptVersion || "executive-review-v1",
+        }),
+      );
     }),
   );
   router.post(
@@ -85,6 +85,14 @@ function createBriefsRouter() {
         });
       res.json(evidence);
     }),
+  );
+  router.post(
+    "/import",
+    action((req, res) =>
+      res.json(
+        require("../lib/assessmentImport").importAssessment(req.params.id),
+      ),
+    ),
   );
   router.get(
     "/history",

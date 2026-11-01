@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getRoadmap, getGit } from "../api";
+import { Link, useParams } from "react-router-dom";
+import { getRoadmap, getGit, listBriefings } from "../api";
 import RoadmapTree from "../components/RoadmapTree";
 import GitMilestonePanel from "../components/GitMilestonePanel";
 import GsdMigrationPanel from "../components/GsdMigrationPanel";
 import ExecutiveBriefPanel from "../components/ExecutiveBriefPanel";
 import AnalysisPanel from "../components/AnalysisPanel";
+import ProjectMetadataPanel from "../components/ProjectMetadataPanel";
 import RunningNowPanel from "../components/RunningNowPanel";
 
 export default function ProjectDetail() {
   const { id } = useParams();
+  const [project, setProject] = useState(null);
   const [roadmap, setRoadmap] = useState(null);
   const [git, setGit] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -18,6 +20,9 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     let live = true;
+    listBriefings()
+      .then((data) => live && setProject(data.find((p) => p.id === id)))
+      .catch(() => {});
     setRoadmap(null);
     setGit(null);
     setRoadmapError("");
@@ -35,16 +40,26 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>project detail</h1>
+      <div className="detail-heading">
+        <Link to="/briefings" className="back-link">
+          ← Executive briefings
+        </Link>
+        <p className="eyebrow">PROJECT INTELLIGENCE</p>
+        <h1>{project?.name || "Project detail"}</h1>
+        <p className="page-description">
+          Purpose, evidence and delivery — with the unknowns in view.
+        </p>
       </div>
       <div className="page-content">
-        <ExecutiveBriefPanel projectId={id} refreshKey={refreshKey} />
+        <ProjectMetadataPanel key={id} projectId={id} />
+        <ExecutiveBriefPanel key={id} projectId={id} refreshKey={refreshKey} />
         <AnalysisPanel
+          key={id}
           projectId={id}
           onCompleted={() => setRefreshKey((k) => k + 1)}
         />
         <GsdMigrationPanel
+          key={id}
           projectId={id}
           onChanged={() => {
             getRoadmap(id)

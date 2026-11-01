@@ -22,15 +22,31 @@ Existing `.planning/ROADMAP.md` and `.gsd/gsd.db` projects retain roadmap, Git m
 
 Use **analyze project**, or explicitly **analyze all available projects**, to collect local evidence and request a draft. Discovery never makes AI calls. The analysis panel identifies the provider and data handling before invocation: selected project evidence is sent through your configured CLI/account to its AI provider. Provider charges and account policies apply.
 
-The initial supported adapter is the installed Claude CLI. It uses noninteractive output, disables tools, MCP, hooks and project settings, runs outside the project, and enforces time/output limits. `claude --help` must support `--restricted`, `--tools`, `--strict-mcp-config`, `--no-session-persistence` and `--settings`; older CLIs fail visibly. Authenticate the CLI separately. Codex remains available for terminal launch but its analysis adapter is explicitly unsupported until a tool-free invocation is verified.
+Analysis supports Claude and **ChatGPT through the local Codex CLI**. Sign in using the selected CLI. Claude disables tools/MCP/hooks/project settings. The ChatGPT adapter ignores user config and rules, disables command execution, plugins, connectors, hooks and related features, and uses a read-only sandbox outside project folders; reported tool activity causes the result to be rejected. Both enforce time/output limits. Account or quota errors pause pending jobs rather than repeating failures across the portfolio; resume after resolving the provider issue. The current workspace is configured for ChatGPT.
 
-Evidence collection is local and bounded: 200 files, 64 KiB per file, 1 MiB total, four directory levels and 4,000 inspected entries. It skips common credential stores, environment files, likely secrets, binaries, dependencies, generated output and symlinks. These conservative checks can omit relevant files; incomplete snapshots show **possibly stale**. Evidence is repository documentation/code, not independent proof of demand or accepted organizational commitments.
+Evidence collection is local and bounded. Analysis uses 80 files, 32 KiB per file and 256 KiB total; general evidence inspection uses up to 200 files, 64 KiB per file and 1 MiB total. Both stop at four directory levels and 4,000 inspected entries. It skips common credential stores, environment files, likely secrets, binaries, dependencies, generated output and symlinks. These conservative checks can omit relevant files; incomplete snapshots show **possibly stale**. Evidence is repository documentation/code, not independent proof of demand or accepted organizational commitments.
 
 Every assessment uses the complete versioned [executive-review prompt](server/resources/executive-review-v1.md). Seven sections carry **confirmed**, **hypothesis**, **proposed**, or **unknown** claims. Confirmed claims require collected evidence references. Personal projects and demonstrations receive proportionate assessments. Missing owners, customer evidence, spending limits and validation steps remain visible as unknowns.
 
 Review and edit drafts, explicitly accept a revision, view history, or export Markdown. Reanalysis creates an independent draft; it never overwrites human edits or the accepted version. A failed or interrupted job preserves prior work and can be retried explicitly. Freshness checks compare the accepted/current brief's evidence with current files; freshness is not a claim that its conclusions have been externally validated.
 
 Commercial opportunities require evidence, account, commercial owner, attribution confirmer, motion, stage, amount/currency, next commitment and outcome. Unknown text fields must be explicit. `/api/opportunities` aggregates accepted briefs, deduplicates opportunity IDs, keeps commercial metrics/currencies separate, and excludes conflicting records from totals. No CRM synchronization or forecasting is performed.
+
+## Executive workspace and existing research
+
+The Souldo-inspired workspace keeps the original Geezo character, with self-hosted Newsreader/DM Sans fonts and Portfolio, Executive Briefings, Related Projects and Settings navigation. Executive Briefings shows recommendations, draft/accepted states, source freshness and live assessment progress.
+
+Use **Import existing research** for projects containing `.planning/research/ASSESSMENT.md`. Geezer's existing Puppet Governed Remediation Gateway assessment is imported with its supporting research, original date and historical verification limits. Unchanged imports are idempotent; changed sources create another draft. Original files and accepted/human work are preserved.
+
+The versioned [Geezer-style assessment methodology](server/resources/assessment-v2.md) adds an evidence-backed capability/reuse matrix, separate inspection/historical-verification states, smallest useful experiment and investment tiers to the executive brief. No project tests, infrastructure or application code are executed by these reviews. Historical checks remain historical, and missing context produces explicit unknowns.
+
+## Personal/work, tags and related projects
+
+Set **Personal**, **Work** or **Unclassified** directly on a portfolio row or in project detail. This is always your choice; assessment output never changes it. Filter the portfolio by category and topic.
+
+Each project has your own tags and separately marked assessment suggestions. Keep or dismiss suggestions in project detail. Manual tags, classification and dismissals survive discovery and reanalysis. Existing completed/imported assessments receive topic suggestions without another AI call; new assessments may also propose explicit tags.
+
+Use **Related Projects** to describe an idea or select a topic before starting something new. Results explain matching tags/assessment terms, respect the personal/work filter, and link to existing project evidence. Project detail also shows related projects. Matches are reuse leads, not proof that components are interchangeable or ready for production.
 
 ## GSD adoption
 

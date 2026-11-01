@@ -120,7 +120,7 @@ export default function SettingsPage() {
               }
             >
               <option value="claude">claude</option>
-              <option value="codex">codex</option>
+              <option value="codex">ChatGPT (Codex)</option>
             </select>
           </label>
           <label>
@@ -151,7 +151,7 @@ export default function SettingsPage() {
               }
             >
               <option value="claude">claude</option>
-              <option value="codex">codex</option>
+              <option value="codex">ChatGPT (Codex)</option>
               <option value="gemini">gemini</option>
             </select>
           </div>

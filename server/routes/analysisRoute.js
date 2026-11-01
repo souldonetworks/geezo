@@ -7,10 +7,12 @@ function createAnalysisRouter(service) {
     res.json({
       ...config,
       dataHandling:
-        "Selected local evidence is sent through the configured CLI and account to its AI provider. Tools, project settings, hooks and MCP servers are disabled by the Claude adapter.",
-      supported: config.adapter === "claude",
+        "Selected local evidence is sent through the configured CLI and account to its AI provider. Claude uses no tools. ChatGPT via Codex runs with shell execution, plugins, connectors and hooks disabled in a read-only sandbox; any reported tool activity is rejected.",
+      supported: ["claude", "codex"].includes(config.adapter),
+      providerBlock: service.getProviderBlock(),
     });
   });
+  router.post("/resume", (req, res) => res.json(service.resumeAnalysis()));
   router.post("/", (req, res) => {
     try {
       res.status(202).json(service.enqueueAnalysis(req.body.projectIds));

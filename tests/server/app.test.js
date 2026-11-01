@@ -257,3 +257,102 @@ test("a malformed GSD database cannot hide the rest of the portfolio", async (t)
   assert.ok(projects.find((p) => p.id === broken.id).inspectionError);
   assert.equal(projects.find((p) => p.id === healthy.id).gsdFormat, "none");
 });
+
+test("briefing register exposes imported research as a draft with original provenance", async (t) => {
+  const { createApp } = freshHome();
+  const app = createApp({ discovery: false });
+  const server = app.listen(0);
+  t.after(() => {
+    app.locals.close();
+    server.close();
+  });
+  const base = `http://localhost:${server.address().port}`;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "briefing-import-api-"));
+  fs.mkdirSync(path.join(root, ".planning", "research"), { recursive: true });
+  fs.writeFileSync(
+    path.join(root, ".planning", "research", "ASSESSMENT.md"),
+    "# Existing Project Assessment\n\n**Project:** Example\n**Recommendation:** Validate a bounded experiment.\n\n## Executive verdict\n\nReal deployment is unverified.\n",
+  );
+  const p = require("../../server/lib/registry").addProject(root);
+  let list = await (await fetch(base + "/api/briefings")).json();
+  assert.equal(list[0].importAvailable, true);
+  assert.equal(list[0].brief, null);
+  const response = await fetch(`${base}/api/projects/${p.id}/brief/import`, {
+    method: "POST",
+  });
+  assert.equal(response.status, 200);
+  const imported = await response.json();
+  list = await (await fetch(base + "/api/briefings")).json();
+  assert.equal(list[0].draftSource, "import");
+  assert.equal(list[0].hasPendingDraft, true);
+  assert.equal(list[0].brief.acceptedRevision, null);
+  const record = await (
+    await fetch(`${base}/api/projects/${p.id}/brief`)
+  ).json();
+  assert.equal(record.revisions[0].provenance.originalProject, "Example");
+  assert.equal(record.revisions[0].id, imported.revision.id);
+  const store = require("../../server/lib/briefStore");
+  const v2 = store.createRevision(p.id, {
+    brief: record.revisions[0].brief,
+    source: "analysis",
+    parentRevision: imported.revision.id,
+    evidenceId: record.revisions[0].evidenceId,
+    promptVersion: "executive-review-v1+assessment-v2",
+  });
+  const edit = await fetch(`${base}/api/projects/${p.id}/brief`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      brief: v2.brief,
+      parentRevision: v2.id,
+      expectedHead: v2.id,
+    }),
+  });
+  assert.equal(edit.status, 201);
+  assert.equal(
+    (await edit.json()).promptVersion,
+    "executive-review-v1+assessment-v2",
+  );
+});
+
+test("personal/work and tags round-trip through API and support explained related search", async (t) => {
+  const { createApp } = freshHome();
+  const app = createApp({ discovery: false });
+  const server = app.listen(0);
+  t.after(() => {
+    app.locals.close();
+    server.close();
+  });
+  const base = `http://localhost:${server.address().port}`;
+  const registry = require("../../server/lib/registry");
+  const p = registry.addProject(
+    fs.mkdtempSync(path.join(os.tmpdir(), "metadata-api-")),
+  );
+  const saved = await fetch(`${base}/api/projects/${p.id}/metadata`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      category: "work",
+      tags: ["Puppet", "MCP"],
+      expectedVersion: 0,
+    }),
+  });
+  assert.equal(saved.status, 200);
+  const metadata = await saved.json();
+  assert.equal(metadata.category, "work");
+  assert.deepEqual(metadata.tags, ["puppet", "mcp"]);
+  const briefings = await (await fetch(base + "/api/briefings")).json();
+  assert.equal(briefings[0].category, "work");
+  assert.deepEqual(briefings[0].allTags, ["puppet", "mcp"]);
+  const related = await (
+    await fetch(base + "/api/related?q=puppet&category=work")
+  ).json();
+  assert.equal(related[0].id, p.id);
+  assert.deepEqual(related[0].matchedTags, ["puppet"]);
+  const conflict = await fetch(`${base}/api/projects/${p.id}/metadata`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ category: "personal", expectedVersion: 0 }),
+  });
+  assert.equal(conflict.status, 409);
+});

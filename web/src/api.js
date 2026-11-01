@@ -102,3 +102,19 @@ export const rollbackMigration = (id, migration) =>
   });
 export const getBriefEvidence = (id, evidenceId) =>
   request(`/projects/${id}/brief/evidence/${evidenceId}`);
+export const listBriefings = () => request("/briefings");
+export const importAssessment = (id) =>
+  request(`/projects/${id}/brief/import`, { method: "POST" });
+
+export const resumeAnalysis = () =>
+  request("/analysis/resume", { method: "POST" });
+export const updateProjectMetadata = (id, metadata) =>
+  request(`/projects/${id}/metadata`, {
+    method: "PATCH",
+    body: JSON.stringify(metadata),
+  });
+export const searchRelatedProjects = (query, category = "all") =>
+  request(
+    `/related?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`,
+  );
+export const getRelatedProjects = (id) => request(`/projects/${id}/related`);

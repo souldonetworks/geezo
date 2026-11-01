@@ -49,6 +49,9 @@ function createApp(options = {}) {
     "/api/projects/:id/brief",
     require("./routes/briefsRoute").createBriefsRouter(),
   );
+  app.get("/api/briefings", (req, res) =>
+    res.json(require("./lib/briefings").getBriefings(analysis.listJobs())),
+  );
   app.get("/api/opportunities", (req, res) => {
     const records = require("./lib/registry")
       .loadProjects()
@@ -67,6 +70,22 @@ function createApp(options = {}) {
     res.json({ status: "ok" });
   });
 
+  app.use(
+    "/api/projects",
+    require("./routes/metadataRoute").createMetadataRouter(),
+  );
+  app.get("/api/related", (req, res) => {
+    try {
+      res.json(
+        require("./lib/relatedProjects").findRelated({
+          query: req.query.q || "",
+          category: req.query.category || "all",
+        }),
+      );
+    } catch (e) {
+      res.status(400).json({ message: e.message });
+    }
+  });
   app.use("/api/projects", createProjectsRouter(sseHub));
   app.use("/api/settings", createSettingsRouter());
   app.use("/api/convert", createConvertRouter());

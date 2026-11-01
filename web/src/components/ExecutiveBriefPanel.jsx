@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import BriefEditor from "./BriefEditor";
+import TechnicalAssessment from "./TechnicalAssessment";
 import EvidencePanel from "./EvidencePanel";
 import { getBrief, saveBrief, acceptBrief } from "../api";
 const headings = {
@@ -126,8 +127,9 @@ export default function ExecutiveBriefPanel({ projectId, refreshKey }) {
     }
   }
   return (
-    <section className="card">
-      <h2>executive project brief</h2>
+    <section className="card" id="executive-brief">
+      <p className="eyebrow">THE INVESTMENT CASE</p>
+      <h2>Executive project brief</h2>
       {error && <p role="alert">{error}</p>}
       {!record ? (
         <p>Loading…</p>
@@ -162,6 +164,28 @@ export default function ExecutiveBriefPanel({ projectId, refreshKey }) {
                 {brief.purpose} ·{" "}
                 {record.acceptedRevision === selected ? "accepted" : "draft"}
               </p>
+              {revision.provenance && (
+                <div className="source-provenance">
+                  <strong>
+                    {revision.source === "import"
+                      ? "Imported research"
+                      : "Assessment provenance"}
+                  </strong>
+                  <p>
+                    {revision.provenance.originalProject ||
+                      revision.provenance.methodology}
+                  </p>
+                  {revision.provenance.originalDate && (
+                    <p>
+                      Source assessment date: {revision.provenance.originalDate}
+                    </p>
+                  )}
+                  <p>
+                    {revision.provenance.methodology ||
+                      revision.provenance.verificationBoundary}
+                  </p>
+                </div>
+              )}
               {Object.entries(headings).map(([key, title]) => (
                 <div key={key}>
                   <h3>{title}</h3>
@@ -191,6 +215,7 @@ export default function ExecutiveBriefPanel({ projectId, refreshKey }) {
                   )}
                 </div>
               ))}
+              <TechnicalAssessment assessment={brief.assessment} />
               <p>
                 Prompt: {revision.promptVersion} · Evidence snapshot:{" "}
                 {revision.evidenceId || "none"}

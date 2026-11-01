@@ -30,9 +30,11 @@ function createRevision(
     expectedHead = parentRevision,
     evidenceId = null,
     evidence,
+    provenance = null,
+    promptVersion = "executive-review-v1",
   },
 ) {
-  if (!["human", "analysis"].includes(source))
+  if (!["human", "analysis", "import"].includes(source))
     throw new Error("Invalid revision source");
   const record = getBriefRecord(projectId);
   const validated = validateBrief(brief, evidence);
@@ -46,7 +48,8 @@ function createRevision(
     conflict();
   const revision = {
     schemaVersion: 1,
-    promptVersion: "executive-review-v1",
+    promptVersion,
+    provenance,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     source,
@@ -76,6 +79,16 @@ function briefSummary(projectId) {
   return revision
     ? {
         recommendation: revision.brief.recommendation.decision,
+        revisionId: revision.id,
+        source: revision.source,
+        updatedAt: revision.createdAt,
+        rationale: revision.brief.recommendation.claims[0]?.text,
+        unknownCount: Object.values(revision.brief)
+          .filter(Array.isArray)
+          .flat()
+          .filter((c) => c?.status === "unknown").length,
+        hasResearch:
+          revision.source === "import" || !!revision.brief.assessment,
         acceptedRevision: r.acceptedRevision,
         latestDraft: r.latestDraft,
         evidenceId: revision.evidenceId,

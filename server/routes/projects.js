@@ -41,7 +41,10 @@ function createProjectsRouter(sseHub) {
         latestJobs.set(job.projectId, job);
     }
     const projects = registry.loadProjects().map((project) => {
-      const status = getProjectStatus(project);
+      const status = {
+        ...getProjectStatus(project),
+        ...require("../lib/projectMetadata").getProjectMetadata(project),
+      };
       const brief = require("../lib/briefStore").briefSummary(project.id);
       if (brief && project.brief?.evidenceId === brief.evidenceId)
         brief.freshness = project.brief.freshness;
