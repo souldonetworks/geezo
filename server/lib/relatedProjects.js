@@ -66,6 +66,7 @@ function findRelated({ query = "", projectId, category } = {}) {
       const title = words(project.name);
       const description = words(
         [
+          meta.description.text,
           brief?.recommendation?.claims?.map((c) => c.text).join(" "),
           brief?.assessment?.summary || "",
         ].join(" "),

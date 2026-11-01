@@ -112,7 +112,7 @@ test("switching projects hides stale metadata controls before the new project lo
   const saves = ui
     .root()
     .root.findAllByType("button")
-    .filter((b) => b.children.includes("Save classification & tags"));
+    .filter((b) => b.children.includes("Save project context"));
   assert.equal(saves.length, 0);
   await ui.resolve(1);
   assert.equal(ui.root().root.findByType("input").props.value, "team-b");

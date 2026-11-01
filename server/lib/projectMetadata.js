@@ -87,7 +87,23 @@ function getProjectMetadata(project, brief) {
   const suggestedTags = deriveSuggestedTags(
     brief === undefined ? currentBrief(project.id) : brief,
   ).filter((tag) => !tags.includes(tag) && !dismissed.includes(tag));
+  const lens = require("./lenses").resolveLens(
+    project,
+    brief === undefined ? currentBrief(project.id) : brief,
+  );
   return {
+    description: require("./projectDescription").getProjectDescription(
+      project,
+      brief === undefined ? currentBrief(project.id) : brief,
+    ),
+    lensId: project.lensId || null,
+    effectiveLens: {
+      id: lens.id,
+      name: lens.name,
+      version: lens.version,
+      assignment: lens.assignment,
+      reason: lens.reason,
+    },
     category: ["personal", "work"].includes(project.category)
       ? project.category
       : "unclassified",
@@ -118,6 +134,26 @@ function updateMetadata(id, patch) {
   )
     invalid("Category must be personal, work or unclassified");
   const update = { ...current };
+  if (patch.description !== undefined) {
+    if (
+      typeof patch.description !== "string" ||
+      patch.description.length > 6000
+    )
+      invalid("Description must be text of 6,000 characters or fewer");
+    update.description = patch.description.trim();
+    update.descriptionUpdatedAt = new Date().toISOString();
+  }
+  if (patch.lensId !== undefined) {
+    if (
+      patch.lensId !== null &&
+      !require("./lenses")
+        .listLenses()
+        .some((l) => l.id === patch.lensId)
+    )
+      invalid("Choose an active assessment lens");
+    update.lensId = patch.lensId;
+  }
+
   if (patch.category !== undefined) update.category = patch.category;
   if (patch.tags !== undefined) update.tags = normalizeTags(patch.tags);
   if (patch.dismissedTags !== undefined)

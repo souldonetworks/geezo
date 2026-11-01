@@ -118,3 +118,31 @@ export const searchRelatedProjects = (query, category = "all") =>
     `/related?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`,
   );
 export const getRelatedProjects = (id) => request(`/projects/${id}/related`);
+export const listAssessmentLenses = () => request("/lenses");
+export const createAssessmentLens = (body) =>
+  request("/lenses", { method: "POST", body: JSON.stringify(body) });
+export const updateAssessmentLens = (id, body) =>
+  request(`/lenses/${id}`, { method: "PUT", body: JSON.stringify(body) });
+export const deleteAssessmentLens = (id, expectedVersion) =>
+  request(`/lenses/${id}`, {
+    method: "DELETE",
+    body: JSON.stringify({ expectedVersion }),
+  });
+export const getAllIn = () => request("/all-in");
+export const runAllIn = () => request("/all-in/run", { method: "POST" });
+export const getAllInReport = (id) => request(`/all-in/reports/${id}`);
+export const listWorkspaces = () => request("/workspaces");
+export const previewWorkspace = (body) =>
+  request("/workspaces/preview", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+export const createLinkedWorkspace = (plan) =>
+  request(`/workspaces/${plan.id}/create`, {
+    method: "POST",
+    body: JSON.stringify({ expectedFingerprint: plan.sourceFingerprint }),
+  });
+export const archiveLinkedWorkspace = (id) =>
+  request(`/workspaces/${id}/archive`, { method: "POST" });
+export const restoreLinkedWorkspace = (id) =>
+  request(`/workspaces/${id}/restore`, { method: "POST" });

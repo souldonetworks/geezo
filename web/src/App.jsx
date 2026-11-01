@@ -11,18 +11,24 @@ import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
 import SettingsPage from "./pages/SettingsPage";
 import BriefingsPage from "./pages/BriefingsPage";
+import AllInPage from "./pages/AllInPage";
+import AssessmentLensesPage from "./pages/AssessmentLensesPage";
 import RelatedProjectsPage from "./pages/RelatedProjectsPage";
 function Shell() {
   const location = useLocation();
-  const section = location.pathname.startsWith("/briefings")
-    ? "Executive briefings"
-    : location.pathname.startsWith("/settings")
-      ? "Workspace settings"
-      : location.pathname.startsWith("/discover")
-        ? "Related projects"
-        : location.pathname.startsWith("/project/")
-          ? "Project intelligence"
-          : "Project portfolio";
+  const section = location.pathname.startsWith("/all-in")
+    ? "All In portfolio"
+    : location.pathname.startsWith("/lenses")
+      ? "Assessment lenses"
+      : location.pathname.startsWith("/briefings")
+        ? "Executive briefings"
+        : location.pathname.startsWith("/settings")
+          ? "Workspace settings"
+          : location.pathname.startsWith("/discover")
+            ? "Related projects"
+            : location.pathname.startsWith("/project/")
+              ? "Project intelligence"
+              : "Project portfolio";
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
@@ -41,9 +47,11 @@ function Shell() {
         <nav aria-label="Main navigation">
           {[
             ["/", "Portfolio", "01"],
-            ["/briefings", "Executive briefings", "02"],
-            ["/discover", "Related projects", "03"],
-            ["/settings", "Settings", "04"],
+            ["/all-in", "All In", "02"],
+            ["/briefings", "Executive briefings", "03"],
+            ["/discover", "Related projects", "04"],
+            ["/lenses", "Assessment lenses", "05"],
+            ["/settings", "Settings", "06"],
           ].map(([to, label, n]) => (
             <NavLink
               key={to}
@@ -95,6 +103,8 @@ function Shell() {
             <Route path="/project/:id" element={<ProjectDetail />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/discover" element={<RelatedProjectsPage />} />
+            <Route path="/all-in" element={<AllInPage />} />
+            <Route path="/lenses" element={<AssessmentLensesPage />} />
           </Routes>
         </main>
       </div>

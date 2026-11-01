@@ -26,7 +26,7 @@ Analysis supports Claude and **ChatGPT through the local Codex CLI**. Sign in us
 
 Evidence collection is local and bounded. Analysis uses 80 files, 32 KiB per file and 256 KiB total; general evidence inspection uses up to 200 files, 64 KiB per file and 1 MiB total. Both stop at four directory levels and 4,000 inspected entries. It skips common credential stores, environment files, likely secrets, binaries, dependencies, generated output and symlinks. These conservative checks can omit relevant files; incomplete snapshots show **possibly stale**. Evidence is repository documentation/code, not independent proof of demand or accepted organizational commitments.
 
-Every assessment uses the complete versioned [executive-review prompt](server/resources/executive-review-v1.md). Seven sections carry **confirmed**, **hypothesis**, **proposed**, or **unknown** claims. Confirmed claims require collected evidence references. Personal projects and demonstrations receive proportionate assessments. Missing owners, customer evidence, spending limits and validation steps remain visible as unknowns.
+Each assessment captures its selected lens and charter version. PuppetWorks uses the complete [executive-review charter](server/resources/executive-review-v1.md); other lenses use their own charter with the shared [assessment methodology](server/resources/assessment-v3.md). Seven sections carry **confirmed**, **hypothesis**, **proposed**, or **unknown** claims. Confirmed claims require collected evidence references. Personal projects and demonstrations receive proportionate assessments. Missing owners, customer evidence, spending limits and validation steps remain visible as unknowns.
 
 Review and edit drafts, explicitly accept a revision, view history, or export Markdown. Reanalysis creates an independent draft; it never overwrites human edits or the accepted version. A failed or interrupted job preserves prior work and can be retried explicitly. Freshness checks compare the accepted/current brief's evidence with current files; freshness is not a claim that its conclusions have been externally validated.
 
@@ -61,3 +61,13 @@ Projects/settings remain under `~/.claude/gsd-web`; briefs, immutable evidence s
 Live subagent activity still uses the optional Claude hook: `npm run install-hook`. This explicitly updates `~/.claude/settings.json` with a backup; it is never installed during discovery or analysis.
 
 The Markdown prompt and its compiled JavaScript resource are kept in sync so single-binary builds retain the contract. `npm run build:binary` uses the existing Bun packaging workflow.
+
+## Descriptions, assessment lenses and All In
+
+Project detail includes an editable **What is it?** description. Your saved description takes precedence; clearing it restores the AI suggestion. Inferred descriptions remain labelled hypotheses. Saving tags or category alone does not turn AI text into a user override.
+
+**Assessment Lenses** supports creating, reading, editing and deleting versioned charters. The initial lenses are PuppetWorks, Souldo Games, Personal and Experimental. Choose a lens per project or use Auto; personal/work classification remains separate. Prior assessments retain their original charter. Assigned lenses must be reassigned before deletion, and historical versions remain available.
+
+**All In** produces a portfolio-wide report with proposed combinations, reusable components and possible product directions. The default schedule is 08:00 America/Chicago, configurable on that page. Daily runs require the local server to be running; startup catches a missed due date. Failed runs preserve the previous successful report.
+
+Review a recommendation before creating a linked workspace under `~/Code/Projects/<name>`. Geezo creates planning documents and links to existing repositories; it does not move or merge their code. Preview fingerprints reject stale inputs. Created workspaces can be archived and restored without changing source repositories. Existing directories are preserved.

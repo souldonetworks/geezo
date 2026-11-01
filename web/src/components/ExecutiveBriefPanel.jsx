@@ -6,7 +6,7 @@ import { getBrief, saveBrief, acceptBrief } from "../api";
 const headings = {
   recommendation: "Recommendation",
   customerPromise: "Customer promise",
-  whyNow: "Why now / why PuppetWorks",
+  whyNow: "Why now / why this direction",
   valueModel: "Value model",
   delivery: "Delivery and ownership",
   executiveAsk: "Executive ask",
@@ -159,6 +159,19 @@ export default function ExecutiveBriefPanel({ projectId, refreshKey }) {
           )}
           {brief ? (
             <>
+              {revision.assessmentLens && (
+                <div className="source-provenance">
+                  <strong>
+                    {revision.assessmentLens.name} · charter version{" "}
+                    {revision.assessmentLens.version}
+                  </strong>
+                  <p>
+                    {brief.valueOrientation
+                      ? `Value path: ${brief.valueOrientation.kind} — ${brief.valueOrientation.text}`
+                      : "Historical assessment retains its selected charter."}
+                  </p>
+                </div>
+              )}
               <p>
                 <strong>{brief.recommendation.decision}</strong> ·{" "}
                 {brief.purpose} ·{" "}

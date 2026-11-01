@@ -1430,3 +1430,213 @@ details + details {
 .briefing-category-filter label {
   font-size: 10px;
 }
+.project-description {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #51574f;
+  margin: 7px 0 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.description-source {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  color: #96734e;
+  margin-bottom: 5px;
+}
+.project-description-editor {
+  min-height: 130px !important;
+  font-size: 14px;
+}
+.description-provenance {
+  font-size: 10px !important;
+  color: #84765f;
+}
+.metadata-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.metadata-form > .btn {
+  justify-self: start;
+}
+.lens-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.lens-card h2 {
+  margin: 20px 0 12px;
+}
+.lens-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 10px;
+}
+.lens-card .inline-row {
+  margin-top: 20px;
+}
+.lens-card pre {
+  max-height: 350px;
+  overflow: auto;
+}
+.lens-editor {
+  border-left: 3px solid var(--orange);
+}
+.charter-editor {
+  min-height: 300px !important;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.lens-editor .muted {
+  font-size: 11px;
+}
+.schedule-panel {
+  margin-bottom: 24px;
+}
+.schedule-panel > summary {
+  font-size: 12px;
+  font-weight: 500;
+}
+.schedule-fields {
+  display: grid;
+  grid-template-columns: 80px 120px 1fr 2fr;
+  gap: 18px;
+  align-items: center;
+}
+.schedule-fields label > input[type="checkbox"] {
+  display: block;
+  margin-top: 15px;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--orange);
+}
+.run-state {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+.report-history {
+  max-width: 290px;
+  font-size: 9px;
+  margin: 0;
+}
+.portfolio-verdict {
+  border-left: 3px solid var(--orange);
+}
+.portfolio-verdict > p:first-child {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.portfolio-verdict .muted {
+  font-size: 10px;
+}
+.proposal-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+.proposal-card {
+  margin: 0;
+}
+.proposal-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.proposal-card h2 {
+  font-size: 31px;
+}
+.proposal-description {
+  font-size: 13px !important;
+  color: #50594e;
+}
+.proposal-card .tag-list {
+  margin: 18px 0;
+}
+.proposal-value {
+  display: grid;
+  gap: 13px;
+  margin: 24px 0;
+}
+.proposal-value > div {
+  display: grid;
+  grid-template-columns: 94px 1fr;
+  gap: 15px;
+}
+.proposal-value dt {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b7d69;
+}
+.proposal-value dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.proposal-card h3 {
+  font-size: 13px;
+}
+.proposal-card h4 {
+  font-size: 11px;
+  color: var(--navy);
+}
+.proposal-card details {
+  margin-bottom: 15px;
+}
+.workspace-review {
+  margin-top: 30px;
+  border: 1px solid #c4a57b;
+  border-left: 3px solid var(--orange);
+}
+.workspace-review .source-provenance {
+  overflow-wrap: anywhere;
+}
+.workspace-review .source-provenance code {
+  font-size: 11px;
+}
+.workspace-review > .btn {
+  margin-right: 10px;
+}
+.lens-chip {
+  font-size: 10px;
+  color: #7e694e;
+}
+.project-description-editor + .description-provenance {
+  margin-top: 7px;
+}
+@media (max-width: 1100px) {
+  .lens-grid,
+  .proposal-list {
+    grid-template-columns: 1fr;
+  }
+  .schedule-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .metadata-form,
+  .schedule-fields {
+    grid-template-columns: 1fr;
+  }
+  .proposal-value > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .report-history {
+    max-width: 180px;
+  }
+  .lens-card-top {
+    align-items: flex-start;
+  }
+  .section-heading:has(.report-history) {
+    align-items: start;
+    flex-direction: column;
+  }
+}

@@ -56,6 +56,7 @@ function createBriefsRouter() {
           evidenceId: parent?.evidenceId || null,
           evidence,
           provenance: parent?.provenance || null,
+          assessmentLens: parent?.assessmentLens || null,
           promptVersion: parent?.promptVersion || "executive-review-v1",
         }),
       );

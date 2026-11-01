@@ -10,6 +10,12 @@ const DEFAULTS = {
     exclusions: [],
     scanIntervalMs: 60000,
   },
+  allIn: {
+    enabled: true,
+    time: "08:00",
+    timeZone: "America/Chicago",
+    workspaceRoot: path.join(os.homedir(), "Code", "Projects"),
+  },
   analysis: {
     adapter: "claude",
     executable: "claude",
@@ -41,6 +47,7 @@ function loadSettings() {
     ...raw,
     portfolio: { ...DEFAULTS.portfolio, ...raw.portfolio },
     analysis: { ...DEFAULTS.analysis, ...raw.analysis },
+    allIn: { ...DEFAULTS.allIn, ...raw.allIn },
     commandTemplates: {
       ...DEFAULTS.commandTemplates,
       ...(raw.commandTemplates || {}),
@@ -55,6 +62,7 @@ function saveSettings(partial) {
     ...partial,
     portfolio: { ...current.portfolio, ...partial.portfolio },
     analysis: { ...current.analysis, ...partial.analysis },
+    allIn: { ...current.allIn, ...partial.allIn },
     commandTemplates: {
       ...current.commandTemplates,
       ...(partial.commandTemplates || {}),
@@ -92,6 +100,23 @@ function saveSettings(partial) {
     throw Object.assign(new Error("Invalid analysis limits or adapter"), {
       code: "INVALID_SETTINGS",
     });
+  if (
+    typeof merged.allIn.enabled !== "boolean" ||
+    !/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(merged.allIn.time) ||
+    typeof merged.allIn.timeZone !== "string" ||
+    !path.isAbsolute(merged.allIn.workspaceRoot)
+  )
+    throw Object.assign(
+      new Error("Invalid All In schedule or workspace root"),
+      { code: "INVALID_SETTINGS" },
+    );
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: merged.allIn.timeZone });
+  } catch {
+    throw Object.assign(new Error("Invalid schedule timezone"), {
+      code: "INVALID_SETTINGS",
+    });
+  }
   ensureDir();
   writeJsonAtomic(settingsFile(), merged);
   return merged;

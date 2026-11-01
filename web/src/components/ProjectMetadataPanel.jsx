@@ -4,6 +4,7 @@ import {
   listBriefings,
   updateProjectMetadata,
   getRelatedProjects,
+  listAssessmentLenses,
 } from "../api";
 export default function ProjectMetadataPanel({ projectId }) {
   const currentId = useRef(projectId);
@@ -15,21 +16,31 @@ export default function ProjectMetadataPanel({ projectId }) {
   const [related, setRelated] = useState([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [descriptionText, setDescriptionText] = useState("");
+  const [descriptionDirty, setDescriptionDirty] = useState(false);
+  const [lensId, setLensId] = useState("");
+  const [lenses, setLenses] = useState([]);
   const [saved, setSaved] = useState(false);
   function load(
     isCurrent = () => mounted.current && currentId.current === projectId,
   ) {
-    return Promise.all([listBriefings(), getRelatedProjects(projectId)]).then(
-      ([all, matches]) => {
-        if (!isCurrent()) return;
-        const p = all.find((p) => p.id === projectId);
-        if (!p) throw new Error("Project no longer tracked");
-        setProject(p);
-        setCategory(p.category);
-        setText(p.tags.join(", "));
-        setRelated(matches.slice(0, 4));
-      },
-    );
+    return Promise.all([
+      listBriefings(),
+      getRelatedProjects(projectId),
+      listAssessmentLenses(),
+    ]).then(([all, matches, catalog]) => {
+      if (!isCurrent()) return;
+      const p = all.find((p) => p.id === projectId);
+      if (!p) throw new Error("Project no longer tracked");
+      setProject(p);
+      setDescriptionText(p.description?.text || "");
+      setDescriptionDirty(false);
+      setLensId(p.lensId || "");
+      setLenses(catalog);
+      setCategory(p.category);
+      setText(p.tags.join(", "));
+      setRelated(matches.slice(0, 4));
+    });
   }
   useEffect(() => {
     let active = true;
@@ -37,6 +48,9 @@ export default function ProjectMetadataPanel({ projectId }) {
     setProject(null);
     setCategory("unclassified");
     setText("");
+    setDescriptionText("");
+    setDescriptionDirty(false);
+    setLensId("");
     setRelated([]);
     setError("");
     setBusy(false);
@@ -70,6 +84,8 @@ export default function ProjectMetadataPanel({ projectId }) {
       ];
       await updateProjectMetadata(projectId, {
         category,
+        lensId: lensId || null,
+        ...(descriptionDirty ? { description: descriptionText } : {}),
         tags,
         dismissedTags: [
           ...(project.dismissedTags || []),
@@ -90,12 +106,33 @@ export default function ProjectMetadataPanel({ projectId }) {
   return (
     <section className="card metadata-panel">
       <p className="eyebrow">CONTEXT & CONNECTIONS</p>
-      <h2>Give this project a place.</h2>
+      <h2>What is it?</h2>
       {error && <p role="alert">{error}</p>}
       {!project || project.id !== projectId ? (
         <p>Loading project tags…</p>
       ) : (
         <>
+          <label>
+            Project description
+            <textarea
+              className="input project-description-editor"
+              maxLength={6000}
+              value={descriptionText}
+              onChange={(e) => {
+                setDescriptionText(e.target.value);
+                setDescriptionDirty(true);
+                setSaved(false);
+              }}
+            />
+          </label>
+          <p className="description-provenance">
+            {project.description?.source === "user"
+              ? "Your edited description takes precedence over AI updates."
+              : project.description?.status === "hypothesis"
+                ? "AI best guess — review and edit this description."
+                : "Suggested project description — edit it to clarify the purpose."}{" "}
+            Clearing a saved description restores the AI suggestion.
+          </p>
           <div className="metadata-form">
             <label>
               Personal or work
@@ -110,6 +147,29 @@ export default function ProjectMetadataPanel({ projectId }) {
                 <option value="unclassified">Unclassified</option>
                 <option value="personal">Personal</option>
                 <option value="work">Work</option>
+              </select>
+            </label>
+            <label>
+              Assessment lens
+              <select
+                className="input"
+                value={lensId}
+                onChange={(e) => {
+                  setLensId(e.target.value);
+                  setSaved(false);
+                }}
+              >
+                <option value="">
+                  Auto
+                  {project.effectiveLens
+                    ? ` · ${project.effectiveLens.name}`
+                    : ""}
+                </option>
+                {lenses.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name} · v{l.version}
+                  </option>
+                ))}
               </select>
             </label>
             <label>
@@ -129,7 +189,7 @@ export default function ProjectMetadataPanel({ projectId }) {
               disabled={busy}
               onClick={() => save()}
             >
-              Save classification & tags
+              Save project context
             </button>
           </div>
           {saved && (

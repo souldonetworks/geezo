@@ -50,6 +50,33 @@ export default function PortfolioTable({
                     {project.name}
                     <span aria-hidden="true">↗</span>
                   </Link>
+                  {project.description && (
+                    <>
+                      <p
+                        className="project-description"
+                        title={project.description.text}
+                      >
+                        {project.description.text}
+                      </p>
+                      <span className="description-source">
+                        {project.description.source === "user"
+                          ? "Your description"
+                          : project.description.status === "hypothesis"
+                            ? "AI best guess"
+                            : project.description.status === "unknown"
+                              ? "Purpose needs clarification"
+                              : "AI assessment description"}
+                      </span>
+                    </>
+                  )}
+                  {project.effectiveLens && (
+                    <span className="project-meta">
+                      Lens: {project.effectiveLens.name}
+                      {project.effectiveLens.assignment === "auto"
+                        ? " · Auto"
+                        : ""}
+                    </span>
+                  )}
                   <span className="project-meta">
                     {project.availability !== "available"
                       ? "Folder unavailable"

@@ -31,10 +31,27 @@ function createApp(options = {}) {
 
   const analysis = require("./lib/analysisJobs").createAnalysisService();
   app.locals.analysis = analysis;
+  app.use("/api/lenses", require("./routes/lensesRoute").createLensesRouter());
+  require("./lib/linkedWorkspaces").recoverWorkspaces();
+  app.use(
+    "/api/workspaces",
+    require("./routes/workspacesRoute").createWorkspacesRouter(),
+  );
+  const allIn = require("./lib/allIn").createAllInService();
+  const stopAllInSchedule =
+    options.discovery !== false && options.scheduling !== false
+      ? require("./lib/allInScheduler").startAllInScheduler(allIn)
+      : () => {};
+  app.use(
+    "/api/all-in",
+    require("./routes/allInRoute").createAllInRouter(allIn),
+  );
   sseHub.analysis = analysis;
   app.locals.close = () => {
     app.locals.stopDiscovery?.();
     analysis.stop();
+    stopAllInSchedule();
+    allIn.stop();
   };
   require("./lib/migration").recoverMigrations();
   app.use(

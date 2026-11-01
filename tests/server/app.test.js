@@ -356,3 +356,52 @@ test("personal/work and tags round-trip through API and support explained relate
   });
   assert.equal(conflict.status, 409);
 });
+
+test("lens CRUD, project description and All In status are available through the application API", async (t) => {
+  const { createApp } = freshHome();
+  const app = createApp({ discovery: false });
+  const server = app.listen(0);
+  t.after(() => {
+    app.locals.close();
+    server.close();
+  });
+  const base = `http://localhost:${server.address().port}`;
+  let response = await fetch(base + "/api/lenses");
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).length, 4);
+  response = await fetch(base + "/api/lenses", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: "Custom lens",
+      charter: "Assess this experimental workflow using source evidence only.",
+    }),
+  });
+  assert.equal(response.status, 200);
+  const lens = await response.json();
+  const project = require("../../server/lib/registry").addProject(
+    fs.mkdtempSync(path.join(os.tmpdir(), "described-project-")),
+  );
+  response = await fetch(`${base}/api/projects/${project.id}/metadata`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      description: "A useful home dashboard.",
+      lensId: lens.id,
+      expectedVersion: 0,
+    }),
+  });
+  assert.equal(response.status, 200);
+  const metadata = await response.json();
+  assert.equal(metadata.description.text, "A useful home dashboard.");
+  assert.equal(metadata.effectiveLens.id, lens.id);
+  response = await fetch(base + "/api/lenses/" + lens.id, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ expectedVersion: 1 }),
+  });
+  assert.equal(response.status, 409);
+  response = await fetch(base + "/api/all-in");
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).currentReport, null);
+});

@@ -31,6 +31,7 @@ function createRevision(
     evidenceId = null,
     evidence,
     provenance = null,
+    assessmentLens = null,
     promptVersion = "executive-review-v1",
   },
 ) {
@@ -50,6 +51,7 @@ function createRevision(
     schemaVersion: 1,
     promptVersion,
     provenance,
+    assessmentLens,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     source,

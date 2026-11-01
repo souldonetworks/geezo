@@ -37,6 +37,28 @@ function validateBrief(value, evidence) {
     value.recommendation.claims,
     ...SECTIONS.map((key) => value[key]),
   ];
+  if (value.description) {
+    if (
+      typeof value.description.text !== "string" ||
+      value.description.text.length > 6000
+    )
+      invalid("Invalid project description");
+    groups.push([value.description]);
+  }
+  if (value.valueOrientation) {
+    if (
+      ![
+        "commercial",
+        "home-homelab",
+        "learning",
+        "community",
+        "mixed",
+        "unclear",
+      ].includes(value.valueOrientation.kind)
+    )
+      invalid("Invalid value orientation");
+    groups.push([value.valueOrientation]);
+  }
   if (groups.some((group) => !Array.isArray(group) || group.length === 0))
     invalid("All seven brief sections are required");
   for (const claim of groups.flat()) {
@@ -204,6 +226,9 @@ function exportMarkdown(revision) {
   const b = revision.brief;
   return (
     `# Executive Project Brief\n\n**${b.recommendation.decision}** · purpose: ${b.purpose}\n\n` +
+    (b.description
+      ? `## What is it?\n\n**${b.description.status}**: ${b.description.text}\n\n`
+      : "") +
     [
       ["Recommendation", b.recommendation.claims],
       ...SECTIONS.map((key) => [key, b[key]]),
@@ -237,6 +262,9 @@ function exportMarkdown(revision) {
           )
           .join("\n") +
         `\n\nLimits: ${b.assessment.limitations.join(" ")}`
+      : "") +
+    (revision.assessmentLens
+      ? `\n\nAssessment lens: ${revision.assessmentLens.name} · version ${revision.assessmentLens.version} · ${revision.assessmentLens.charterHash}`
       : "") +
     (revision.provenance
       ? `\n\nSource provenance: ${JSON.stringify(revision.provenance)}`

@@ -3,6 +3,35 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
+function unknownAssessment() {
+  const claim = {
+    text: "Purpose and evidence remain uncertain.",
+    status: "unknown",
+    evidenceRefs: [],
+  };
+  return {
+    description: {
+      text: "Best guess: a small software experiment whose exact purpose needs confirmation.",
+      status: "hypothesis",
+      evidenceRefs: [],
+    },
+    purpose: "unknown",
+    recommendation: { decision: "Explore", claims: [claim] },
+    customerPromise: [claim],
+    whyNow: [claim],
+    valueModel: [claim],
+    delivery: [claim],
+    executiveAsk: [claim],
+    unansweredQuestions: [claim],
+    opportunities: [],
+    assessment: {
+      summary: "Insufficient source evidence.",
+      capabilities: [],
+      investmentTiers: [],
+      limitations: ["No source evidence or project tests."],
+    },
+  };
+}
 test("agent process reports bounded output, timeout, malformed output and literal arguments", async () => {
   const { runAgent } = require("../../server/lib/agentAdapter");
   const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "agent-test-"));
@@ -63,6 +92,11 @@ test("analysis saves validated draft and evidence; invalid output leaves it inta
   const project = registry.addProject(root);
   const { createAnalysisService } = require("../../server/lib/analysisJobs");
   const valid = {
+    description: {
+      text: "A small documented project.",
+      status: "hypothesis",
+      evidenceRefs: [],
+    },
     assessment: {
       summary: "Source inspection only.",
       capabilities: [],
@@ -155,7 +189,7 @@ test("analysis saves validated draft and evidence; invalid output leaves it inta
   assert.equal(resumed.getAnalysisJob("interrupted").status, "interrupted");
 });
 
-test("batch queue deduplicates active jobs and records honest unknown drafts for empty projects", async () => {
+test("batch queue deduplicates active jobs and permits a labelled AI best guess for empty projects", async () => {
   process.env.GSD_WEB_HOME_OVERRIDE = fs.mkdtempSync(
     path.join(os.tmpdir(), "empty-analysis-"),
   );
@@ -167,14 +201,14 @@ test("batch queue deduplicates active jobs and records honest unknown drafts for
     require("../../server/lib/analysisJobs").createAnalysisService({
       runner: async () => {
         calls++;
-        throw new Error("empty evidence must not call a provider");
+        return { output: JSON.stringify(unknownAssessment()), diagnostics: "" };
       },
     });
   const first = service.enqueueAnalysis([p.id])[0];
   assert.equal(service.enqueueAnalysis([p.id])[0].id, first.id);
   await service.whenIdle();
   assert.equal(service.getAnalysisJob(first.id).status, "completed");
-  assert.equal(calls, 0);
+  assert.equal(calls, 1);
   const record = require("../../server/lib/briefStore").getBriefRecord(p.id);
   assert.equal(record.revisions[0].brief.recommendation.decision, "Explore");
   assert.ok(
@@ -287,4 +321,70 @@ test("structured provider failure pauses remaining jobs even when the process ex
   assert.equal(calls, 1);
   assert.equal(service.getAnalysisJob(jobs[1].id).status, "blocked");
   assert.equal(service.getProviderBlock().code, "PROVIDER_AUTH_REQUIRED");
+});
+
+test("queued assessments keep the exact lens charter even if the lens changes before execution", async () => {
+  process.env.GSD_WEB_HOME_OVERRIDE = fs.mkdtempSync(
+    path.join(os.tmpdir(), "queued-lens-"),
+  );
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "personal-description-"));
+  const registry = require("../../server/lib/registry");
+  const p = registry.addProject(root);
+  registry.saveProjects([
+    {
+      ...p,
+      lensId: "personal",
+      description: "A dashboard just for my homelab.",
+    },
+  ]);
+  let supplied = "";
+  const service =
+    require("../../server/lib/analysisJobs").createAnalysisService({
+      runner: async ({ prompt }) => {
+        supplied = prompt;
+        return { output: JSON.stringify(unknownAssessment()), diagnostics: "" };
+      },
+    });
+  const job = service.enqueueAnalysis([p.id])[0];
+  const lenses = require("../../server/lib/lenses");
+  lenses.updateLens("personal", {
+    charter: "This is a changed charter used only in future assessments.",
+    expectedVersion: 1,
+  });
+  await service.whenIdle();
+  assert.equal(service.getAnalysisJob(job.id).status, "completed");
+  const revision = require("../../server/lib/briefStore").getBriefRecord(p.id)
+    .revisions[0];
+  assert.equal(revision.assessmentLens.version, 1);
+  assert.match(supplied, /home\/homelab utility/);
+  assert.doesNotMatch(supplied, /changed charter used only/);
+  assert.match(supplied, /dashboard just for my homelab/);
+});
+
+test("queued null description stays null when a user adds an override before execution", async () => {
+  process.env.GSD_WEB_HOME_OVERRIDE = fs.mkdtempSync(
+    path.join(os.tmpdir(), "queued-description-"),
+  );
+  const r = require("../../server/lib/registry");
+  const p = r.addProject(
+    fs.mkdtempSync(path.join(os.tmpdir(), "queued-empty-")),
+  );
+  let supplied = "";
+  const service =
+    require("../../server/lib/analysisJobs").createAnalysisService({
+      runner: async ({ prompt }) => {
+        supplied = prompt;
+        return { output: JSON.stringify(unknownAssessment()), diagnostics: "" };
+      },
+    });
+  const job = service.enqueueAnalysis([p.id])[0];
+  require("../../server/lib/projectMetadata").updateMetadata(p.id, {
+    description: "Added after this job was queued.",
+  });
+  await service.whenIdle();
+  assert.equal(service.getAnalysisJob(job.id).status, "completed");
+  assert.doesNotMatch(supplied, /Added after this job was queued/);
+  const revision = require("../../server/lib/briefStore").getBriefRecord(p.id)
+    .revisions[0];
+  assert.equal(revision.provenance.userDescription, null);
 });

@@ -1,15 +1,19 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   listProjects,
   removeProject,
   discoverProjects,
   updateProjectMetadata,
+  listAssessmentLenses,
 } from "../api";
 import PortfolioTable, { Stats } from "../components/PortfolioTable";
 import AddProjectDialog from "../components/AddProjectDialog";
 import ScanFolderPanel from "../components/ScanFolderPanel";
 export default function Dashboard() {
+  const [params, setParams] = useSearchParams();
+  const lensFilter = params.get("lens") || "all";
+  const [lenses, setLenses] = useState([]);
   const [projects, setProjects] = useState([]);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -31,6 +35,9 @@ export default function Dashboard() {
   );
   useEffect(() => {
     refresh();
+    listAssessmentLenses()
+      .then(setLenses)
+      .catch((e) => setError(e.message));
     const timer = setInterval(refresh, 30000);
     return () => clearInterval(timer);
   }, [refresh]);
@@ -73,6 +80,7 @@ export default function Dashboard() {
                 : p.availability !== "available"),
     );
   const visible = filtered
+    .filter((p) => lensFilter === "all" || p.effectiveLens?.id === lensFilter)
     .filter((p) => category === "all" || p.category === category)
     .filter((p) => !tag || p.allTags?.includes(tag));
   const tags = [...new Set(projects.flatMap((p) => p.allTags || []))].sort();
@@ -188,6 +196,23 @@ export default function Dashboard() {
             <option value="">All topics</option>
             {tags.map((t) => (
               <option key={t}>{t}</option>
+            ))}
+          </select>
+          <select
+            className="input filter-select"
+            aria-label="Assessment lens filter"
+            value={lensFilter}
+            onChange={(e) =>
+              setParams(
+                e.target.value === "all" ? {} : { lens: e.target.value },
+              )
+            }
+          >
+            <option value="all">All assessment lenses</option>
+            {lenses.map((l) => (
+              <option value={l.id} key={l.id}>
+                {l.name}
+              </option>
             ))}
           </select>
           <button
