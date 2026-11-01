@@ -33,10 +33,16 @@ function resolveHost(hostFlag) {
   return hostFlag || "localhost";
 }
 
-async function serveEmbeddedAsset(req, res) {
+function resolveAssetPath(manifest, reqPath) {
+  const ownString = (key) => Object.prototype.hasOwnProperty.call(manifest, key) &&
+    typeof manifest[key] === "string" && manifest[key] ? manifest[key] : undefined;
+  return ownString(reqPath) || ownString("/index.html");
+}
+
+async function serveEmbeddedAsset(req, res, loadAssets = () => import("./generatedAssets.mjs")) {
   let assetsModule;
   try {
-    assetsModule = await import("./generatedAssets.mjs");
+    assetsModule = await loadAssets();
   } catch (err) {
     console.error(
       "Embedded frontend assets not found. This binary may have been built incorrectly, " +
@@ -46,8 +52,8 @@ async function serveEmbeddedAsset(req, res) {
     process.exit(1);
     return;
   }
-  const filePath =
-    assetsModule.manifest[req.path] || assetsModule.manifest["/index.html"];
+  const filePath = resolveAssetPath(assetsModule.manifest, req.path);
+  if (!filePath) return res.status(404).end();
   res.sendFile(filePath);
 }
 
@@ -93,7 +99,7 @@ function dispatch(argv) {
     }
 
     const app = createApp();
-    app.get(/^\/(?!api).*/, serveEmbeddedAsset);
+    app.get(/^\/(?!api).*/, (req, res) => serveEmbeddedAsset(req, res));
 
     const server = app.listen(port, host, () => {
       console.log(`gsd-web server listening on http://${host}:${port}`);
@@ -141,4 +147,5 @@ module.exports = {
   resolveHost,
   printUsage,
   serveEmbeddedAsset,
+  resolveAssetPath,
 };

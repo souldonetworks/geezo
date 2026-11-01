@@ -106,7 +106,7 @@ test('serveEmbeddedAsset prints friendly error and exits 1 when generatedAssets.
   console.error = (...args) => calls.push(args);
 
   try {
-    await assert.rejects(() => serveEmbeddedAsset({ path: '/index.html' }, {}), /EXIT_1/);
+    await assert.rejects(() => serveEmbeddedAsset({ path: '/index.html' }, {}, async () => { throw new Error('Missing assets'); }), /EXIT_1/);
     assert.equal(calls.length, 1);
     assert.equal(
       calls[0].join(' '),
