@@ -1,6 +1,6 @@
 ---
 phase: 07-single-binary-packaging
-reviewed: 2026-07-24T18:20:57Z
+reviewed: 2026-11-01T20:57:29Z
 depth: standard
 files_reviewed: 12
 files_reviewed_list:
@@ -17,14 +17,32 @@ files_reviewed_list:
   - tests/scripts/build-binary.test.js
   - package.json
 findings:
-  critical: 1
+  critical: 0
   warning: 6
   info: 4
-  total: 11
+  total: 10
 status: issues_found
 ---
 
 # Phase 07: Code Review Report
+
+## Gap-Closure Re-review — 2026-11-01
+
+**Scope:** `264228a..61a6db3`, specifically `server/cli.js`, `server/app.js`, `tests/server/cli.test.js`, and `tests/scripts/binary-smoke.test.js`. The existing SQLite fix and cross-runtime reader test were also inspected. No production files were changed by this review.
+
+**Current result:** No new blocker found. CR-01's unsafe-value concern is resolved: `resolveAssetPath` accepts only nonempty own string entries, including the index fallback; absence returns HTTP 404. A named resolver test was independently executed and passed. The saved native binary smoke result also covers `/constructor`, `/__proto__`, normal frontend routes, referenced assets and a subsequent healthy API response. Historical warnings WR-01 through WR-06 remain open; `issues_found` reflects these existing nonblocking warnings, not an unresolved critical finding.
+
+The new `createApp({ staticAssets: false })` call prevents disk assets from masking embedded-serving failures. The default factory behavior remains unchanged for Node workflows. The wrapper route correctly avoids passing Express's `next` argument as the injectable asset loader. Bun reads embedded files as bytes because its virtual paths do not work with Express `sendFile`; the read failure branch responds HTTP 500. The generated manifest contains real Vite HTML, JavaScript, CSS, fonts and image entries.
+
+Evidence inspected: `/tmp/geezo-07-final-full.log` records 114 passes, zero failures/skips, including the compiled executable outside the checkout; `/tmp/geezo-07-all-targets.log` records all five builds. Native darwin-arm64 hook and installer were independently invoked with temporary child-only HOME and data directories. Valid/malformed hook input exited 0. Two installer runs preserved unrelated settings and an existing hook, registered the actual executable path exactly once per event, and produced byte-exact pre-write backups. No real user settings were touched. Other target artifacts were inspected with `file`, not executed.
+
+**Calibration / limits:** The historical CR-01 explanation below overstates normal JavaScript prototype lookup: `/constructor` and `/__proto__` do not equal the unprefixed Object.prototype keys. Preserve that report as history, not as proof that those exact URL paths previously crashed an ordinary manifest. The new test explicitly supplies inherited slash-prefixed entries and non-string own values, so it meaningfully verifies the defensive contract. Missing-manifest coverage runs a copied source fixture under Bun, rather than a specially compiled broken distribution. Native frontend smoke checks status, HTML and nonempty referenced resources; it does not assess visual appearance or exercise every API route. Shared `createApp` wiring and the existing route tests supply API coverage.
+
+No unreferenced `TBD`, `FIXME` or `XXX` debt markers were found in the four gap-change files. No new external dependency was added. There is no declared shell probe for this phase.
+
+## Historical Initial Review — 2026-07-24
+
+The following original findings are retained for audit history. CR-01 is closed as described above; WR-01–WR-06 and IN-01–IN-04 remain historical, nonblocking observations.
 
 **Reviewed:** 2026-07-24T18:20:57Z
 **Depth:** standard
