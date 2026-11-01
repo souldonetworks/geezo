@@ -302,47 +302,44 @@ export default function AllInPage() {
                   </div>
                   <dl className="proposal-value">
                     <div>
-                      <dt>For whom</dt>
+                      <dt>Who benefits</dt>
                       <dd>{proposal.audience}</dd>
                     </div>
                     <div>
-                      <dt>The problem</dt>
+                      <dt>Why this matters</dt>
                       <dd>{proposal.problem}</dd>
                     </div>
                     <div>
-                      <dt>Proposed value</dt>
+                      <dt>What would improve</dt>
                       <dd>{proposal.value}</dd>
                     </div>
                   </dl>
-                  <h3>Suggested path</h3>
+                  <h3>The next investment</h3>
                   <ol>
                     {proposal.steps.map((step, i) => (
                       <li key={i}>{step}</li>
                     ))}
                   </ol>
+                  <h3>Why back this?</h3>
+                  <ul>
+                    {proposal.reasons.map((v, i) => (
+                      <li key={i}>{v}</li>
+                    ))}
+                  </ul>
+                  <h3>What could change the decision?</h3>
+                  <ul>
+                    {proposal.risks.map((v, i) => (
+                      <li key={i}>{v}</li>
+                    ))}
+                  </ul>
+                  <h3>What would justify continuing?</h3>
+                  <ul>
+                    {proposal.successCriteria.map((v, i) => (
+                      <li key={i}>{v}</li>
+                    ))}
+                  </ul>
                   <details>
-                    <summary>
-                      Why these projects, and what needs proving?
-                    </summary>
-                    <h4>Rationale</h4>
-                    <ul>
-                      {proposal.reasons.map((v, i) => (
-                        <li key={i}>{v}</li>
-                      ))}
-                    </ul>
-                    <h4>Risks</h4>
-                    <ul>
-                      {proposal.risks.map((v, i) => (
-                        <li key={i}>{v}</li>
-                      ))}
-                    </ul>
-                    <h4>Validation gates</h4>
-                    <ul>
-                      {proposal.successCriteria.map((v, i) => (
-                        <li key={i}>{v}</li>
-                      ))}
-                    </ul>
-                    <h4>Source observations</h4>
+                    <summary>Supporting project evidence</summary>
                     <ul>
                       {proposal.evidence.map((e, i) => (
                         <li key={i}>
