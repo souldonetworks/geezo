@@ -108,7 +108,7 @@ function createApp(options = {}) {
   app.use("/api/convert", createConvertRouter());
 
   const distDir = path.join(__dirname, "..", "web", "dist");
-  if (fs.existsSync(distDir)) {
+  if (options.staticAssets !== false && fs.existsSync(distDir)) {
     app.use(express.static(distDir));
     app.get(/^\/(?!api).*/, (req, res) => {
       res.sendFile(path.join(distDir, "index.html"));

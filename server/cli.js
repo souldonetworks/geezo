@@ -54,7 +54,17 @@ async function serveEmbeddedAsset(req, res, loadAssets = () => import("./generat
   }
   const filePath = resolveAssetPath(assetsModule.manifest, req.path);
   if (!filePath) return res.status(404).end();
-  res.sendFile(filePath);
+  if (process.versions.bun) {
+    try {
+      const bytes = await require("node:fs/promises").readFile(filePath);
+      res.type(path.extname(filePath)).send(bytes);
+    } catch (error) {
+      console.error("Cannot read embedded frontend asset:", error.message);
+      res.status(500).end();
+    }
+  } else {
+    res.sendFile(filePath);
+  }
 }
 
 function dispatch(argv) {
@@ -98,7 +108,7 @@ function dispatch(argv) {
       );
     }
 
-    const app = createApp();
+    const app = createApp({ staticAssets: false });
     app.get(/^\/(?!api).*/, (req, res) => serveEmbeddedAsset(req, res));
 
     const server = app.listen(port, host, () => {
