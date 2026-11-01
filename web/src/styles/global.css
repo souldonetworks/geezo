@@ -1,8 +1,8 @@
 /* GSD Design System – Global Entry Point (adapted for the run dashboard) */
-@import url('./tokens/colors.css');
-@import url('./tokens/typography.css');
-@import url('./tokens/spacing.css');
-@import url('./tokens/effects.css');
+@import url("./tokens/colors.css");
+@import url("./tokens/typography.css");
+@import url("./tokens/spacing.css");
+@import url("./tokens/effects.css");
 
 * {
   box-sizing: border-box;
@@ -344,4 +344,69 @@ select.input {
 .saved-text {
   color: var(--color-success);
   font-size: var(--font-size-sm);
+}
+
+.claim-status {
+  font-weight: 700;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+}
+.evidence-ref {
+  display: block;
+  opacity: 0.75;
+  overflow-wrap: anywhere;
+  margin: 4px 0 12px;
+}
+.brief-editor {
+  width: 100%;
+  min-height: 400px;
+  font-family: monospace;
+}
+label {
+  display: block;
+  margin: 12px 0;
+}
+label > .input {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.card li {
+  margin-bottom: 12px;
+  line-height: 1.55;
+}
+.card pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+fieldset {
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid var(--border-color, #444);
+  border-radius: 8px;
+  min-width: 0;
+}
+legend {
+  font-weight: 600;
+  padding: 0 6px;
+}
+.claim-editor {
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-color, #444);
+}
+summary {
+  cursor: pointer;
+  padding: 12px 0;
+  min-height: 40px;
+}
+.inline-row {
+  flex-wrap: wrap;
 }

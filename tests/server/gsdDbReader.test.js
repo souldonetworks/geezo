@@ -1,15 +1,18 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const os = require('node:os');
-const path = require('node:path');
-const { DatabaseSync } = require('node:sqlite');
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { DatabaseSync } = require("node:sqlite");
 
-const { hasGsdDatabase, readGsdDatabase } = require('../../server/lib/gsdDbReader');
+const {
+  hasGsdDatabase,
+  readGsdDatabase,
+} = require("../../server/lib/gsdDbReader");
 
 function makeProject() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'gsd-db-project-'));
-  fs.mkdirSync(path.join(dir, '.gsd'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gsd-db-project-"));
+  fs.mkdirSync(path.join(dir, ".gsd"));
   return dir;
 }
 
@@ -44,22 +47,22 @@ function createSchema(db) {
   `);
 }
 
-test('hasGsdDatabase is false when .gsd/gsd.db does not exist', () => {
+test("hasGsdDatabase is false when .gsd/gsd.db does not exist", () => {
   const dir = makeProject();
   assert.equal(hasGsdDatabase(dir), false);
 });
 
-test('hasGsdDatabase is true once .gsd/gsd.db exists', () => {
+test("hasGsdDatabase is true once .gsd/gsd.db exists", () => {
   const dir = makeProject();
-  const db = new DatabaseSync(path.join(dir, '.gsd', 'gsd.db'));
+  const db = new DatabaseSync(path.join(dir, ".gsd", "gsd.db"));
   createSchema(db);
   db.close();
   assert.equal(hasGsdDatabase(dir), true);
 });
 
-test('readGsdDatabase returns empty phases when no milestone exists', () => {
+test("readGsdDatabase returns empty phases when no milestone exists", () => {
   const dir = makeProject();
-  const db = new DatabaseSync(path.join(dir, '.gsd', 'gsd.db'));
+  const db = new DatabaseSync(path.join(dir, ".gsd", "gsd.db"));
   createSchema(db);
   db.close();
 
@@ -67,9 +70,9 @@ test('readGsdDatabase returns empty phases when no milestone exists', () => {
   assert.deepEqual(result.phases, []);
 });
 
-test('readGsdDatabase maps the active milestone\'s slices/tasks to phases/plans', () => {
+test("readGsdDatabase maps the active milestone's slices/tasks to phases/plans", () => {
   const dir = makeProject();
-  const db = new DatabaseSync(path.join(dir, '.gsd', 'gsd.db'));
+  const db = new DatabaseSync(path.join(dir, ".gsd", "gsd.db"));
   createSchema(db);
 
   db.exec(`
@@ -94,13 +97,45 @@ test('readGsdDatabase maps the active milestone\'s slices/tasks to phases/plans'
   assert.equal(result.phases.length, 2);
 
   const [phase1, phase2] = result.phases;
-  assert.equal(phase1.title, 'Scaffold');
-  assert.equal(phase1.status, 'done');
-  assert.equal(phase1.goal, 'Get the app booting');
+  assert.equal(phase1.title, "Scaffold");
+  assert.equal(phase1.status, "done");
+  assert.equal(phase1.goal, "Get the app booting");
   assert.equal(phase1.plans.length, 2);
-  assert.deepEqual(phase1.plans[0], { id: 't1', title: 'Repo structure', done: true });
+  assert.deepEqual(phase1.plans[0], {
+    id: "t1",
+    title: "Repo structure",
+    done: true,
+  });
 
-  assert.equal(phase2.title, 'Core Feature');
-  assert.equal(phase2.status, 'pending');
+  assert.equal(phase2.title, "Core Feature");
+  assert.equal(phase2.status, "pending");
   assert.equal(phase2.plans[0].done, false);
+});
+
+test("Bun reads the same SQLite project without requiring node:sqlite or changing its database", (t) => {
+  const { spawnSync, execFileSync } = require("node:child_process");
+  if (spawnSync("bun", ["--version"]).status !== 0) {
+    t.skip("Bun is not installed");
+    return;
+  }
+  const dir = makeProject();
+  const file = path.join(dir, ".gsd", "gsd.db");
+  const db = new DatabaseSync(file);
+  createSchema(db);
+  db.exec(
+    "INSERT INTO milestones(id,title,status,sequence) VALUES('m1','Example','active',1)",
+  );
+  db.close();
+  const before = fs.readFileSync(file);
+  const output = execFileSync(
+    "bun",
+    [
+      "-e",
+      "try {const {readGsdDatabase}=require('./server/lib/gsdDbReader');console.log(JSON.stringify(readGsdDatabase(process.argv[1])))} catch(error) {console.error(error.message);process.exit(1)}",
+      dir,
+    ],
+    { cwd: path.join(__dirname, "../.."), encoding: "utf8" },
+  );
+  assert.deepEqual(JSON.parse(output), { phases: [] });
+  assert.deepEqual(fs.readFileSync(file), before);
 });

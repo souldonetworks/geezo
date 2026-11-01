@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { scanDirectory, addProject, convertProject } from '../api';
+import { useState } from "react";
+import { scanDirectory, addProject, convertProject } from "../api";
 
 export default function ScanFolderPanel({ onAdded }) {
-  const [parentPath, setParentPath] = useState('');
+  const [parentPath, setParentPath] = useState("");
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
 
@@ -45,38 +45,23 @@ export default function ScanFolderPanel({ onAdded }) {
       </div>
       {error && <p className="error-text">{error}</p>}
       {results && (
-        <div style={{ marginTop: 'var(--gap-md)' }}>
+        <div style={{ marginTop: "var(--gap-md)" }}>
           {results.length === 0 ? (
             <p className="empty-state">No subfolders found.</p>
           ) : (
             results.map((entry) => (
               <div className="stat" key={entry.path}>
                 <span>{entry.name}</span>
-                <span className="inline-row" style={{ alignItems: 'center' }}>
+                <span className="inline-row" style={{ alignItems: "center" }}>
                   {entry.alreadyRegistered ? (
                     <span className="badge muted">already added</span>
-                  ) : entry.isGsdProject ? (
-                    <>
-                      <span className="badge">gsd project</span>
-                      <button
-                        className="btn btn-primary"
-                        style={{ padding: '4px 10px' }}
-                        onClick={() => handleAdd(entry.path)}
-                      >
-                        add
-                      </button>
-                    </>
                   ) : (
-                    <>
-                      <span className="badge muted">not set up</span>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ padding: '4px 10px' }}
-                        onClick={() => handleConvert(entry.path)}
-                      >
-                        convert
-                      </button>
-                    </>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleAdd(entry.path)}
+                    >
+                      add {entry.isGsdProject ? "GSD project" : "project"}
+                    </button>
                   )}
                 </span>
               </div>
