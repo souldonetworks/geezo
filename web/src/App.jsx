@@ -11,12 +11,13 @@ import Dashboard from "./pages/Dashboard";
 import ProjectDetail from "./pages/ProjectDetail";
 import SettingsPage from "./pages/SettingsPage";
 import BriefingsPage from "./pages/BriefingsPage";
+import GeezoSaysPage from "./pages/GeezoSaysPage";
 import AllInPage from "./pages/AllInPage";
 import AssessmentLensesPage from "./pages/AssessmentLensesPage";
 import RelatedProjectsPage from "./pages/RelatedProjectsPage";
 function Shell() {
   const location = useLocation();
-  const section = location.pathname.startsWith("/all-in")
+  const section = location.pathname.startsWith("/geezo-says") ? "Geezo says..." : location.pathname.startsWith("/all-in")
     ? "All In portfolio"
     : location.pathname.startsWith("/lenses")
       ? "Assessment lenses"
@@ -51,7 +52,8 @@ function Shell() {
             ["/briefings", "Executive briefings", "03"],
             ["/discover", "Related projects", "04"],
             ["/lenses", "Assessment lenses", "05"],
-            ["/settings", "Settings", "06"],
+            ["/geezo-says", "Geezo says...", "06"],
+            ["/settings", "Settings", "07"],
           ].map(([to, label, n]) => (
             <NavLink
               key={to}
@@ -104,6 +106,7 @@ function Shell() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/discover" element={<RelatedProjectsPage />} />
             <Route path="/all-in" element={<AllInPage />} />
+            <Route path="/geezo-says" element={<GeezoSaysPage />} />
             <Route path="/lenses" element={<AssessmentLensesPage />} />
           </Routes>
         </main>

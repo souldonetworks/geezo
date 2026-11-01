@@ -11,7 +11,7 @@ const root = path.resolve(__dirname, '../..');
 const bun = checkBunAvailable();
 function isolatedHome() {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'geezo-binary-'));
-  fs.writeFileSync(path.join(home, 'settings.json'), JSON.stringify({ portfolio: { roots: [], scanIntervalMs: 60000 }, allIn: { enabled: false } }));
+  fs.writeFileSync(path.join(home, 'settings.json'), JSON.stringify({ portfolio: { roots: [], scanIntervalMs: 60000 }, allIn: { enabled: false }, geezoSays: { enabled: false } }));
   return home;
 }
 function env(home) { return { ...process.env, GSD_WEB_HOME_OVERRIDE: home }; }

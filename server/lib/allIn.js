@@ -15,14 +15,14 @@ const {
 } = require("./agentAdapter");
 const hash = (v) =>
   crypto.createHash("sha256").update(JSON.stringify(v)).digest("hex");
-function root() {
-  return path.join(gsdWebDir(), "all-in");
+function root(namespace = "all-in") {
+  return path.join(gsdWebDir(), namespace);
 }
-function statePath() {
-  return path.join(root(), "state.json");
+function statePath(namespace) {
+  return path.join(root(namespace), "state.json");
 }
-function readState() {
-  return readJson(statePath(), {
+function readState(namespace) {
+  return readJson(statePath(namespace), {
     schemaVersion: 1,
     currentReportId: null,
     reportIds: [],
@@ -34,11 +34,11 @@ function validId(id) {
   if (!/^[a-zA-Z0-9-]+$/.test(id)) throw new Error("Invalid report ID");
   return id;
 }
-function getReport(id) {
-  return readJson(path.join(root(), "reports", `${validId(id)}.json`), null);
+function getReport(id, namespace) {
+  return readJson(path.join(root(namespace), "reports", `${validId(id)}.json`), null);
 }
-function getSnapshot(id) {
-  return readJson(path.join(root(), "snapshots", `${validId(id)}.json`), null);
+function getSnapshot(id, namespace) {
+  return readJson(path.join(root(namespace), "snapshots", `${validId(id)}.json`), null);
 }
 function makePortfolioSnapshot() {
   const projects = registry.loadProjects();
@@ -205,25 +205,31 @@ Recommend at most eight high-value actions. Use combine for a coherent new produ
 }
 function createAllInService({
   runner = runAgent,
+  namespace = "all-in",
+  scheduleKey = "allIn",
+  snapshotBuilder = makePortfolioSnapshot,
+  promptBuilder = buildAllInPrompt,
+  validator = validateAllInReport,
+  methodology = "all-in-v2-executive-pitch",
   now = () => new Date(),
 } = {}) {
   let running = null;
   let controller = null;
   let pending = null;
-  let state = readState();
+  let state = readState(namespace);
   if (["queued", "running"].includes(state.run?.status)) {
     state.run.status = "interrupted";
     state.run.error =
       "Server restarted during portfolio synthesis. Run again explicitly.";
-    writeJsonAtomic(statePath(), state);
+    writeJsonAtomic(statePath(namespace), state);
   }
   function getState() {
-    const s = readState();
+    const s = readState(namespace);
     return {
       ...s,
-      currentReport: s.currentReportId ? getReport(s.currentReportId) : null,
+      currentReport: s.currentReportId ? getReport(s.currentReportId, namespace) : null,
       history: s.reportIds
-        .map(getReport)
+        .map(id => getReport(id, namespace))
         .filter(Boolean)
         .map((r) => ({
           id: r.id,
@@ -231,36 +237,36 @@ function createAllInService({
           summary: r.summary.slice(0, 300),
           coverage: r.coverage,
         })),
-      schedule: loadSettings().allIn,
+      schedule: loadSettings()[scheduleKey],
     };
   }
   async function execute(job) {
     let workDir;
     try {
       job.status = "running";
-      let s = readState();
+      let s = readState(namespace);
       s.run = job;
-      writeJsonAtomic(statePath(), s);
-      const snapshot = makePortfolioSnapshot();
+      writeJsonAtomic(statePath(namespace), s);
+      const snapshot = snapshotBuilder();
       writeJsonAtomic(
-        path.join(root(), "snapshots", `${job.id}.json`),
+        path.join(root(namespace), "snapshots", `${job.id}.json`),
         snapshot,
       );
       if (!snapshot.projects.length)
         throw new Error("Add projects before running All In");
       const settings = loadSettings().analysis;
-      workDir = path.join(root(), "work", job.id);
+      workDir = path.join(root(namespace), "work", job.id);
       fs.mkdirSync(workDir, { recursive: true, mode: 0o700 });
       const result = await runner(
         {
           ...settings,
           args: analysisArguments(settings),
           cwd: workDir,
-          prompt: buildAllInPrompt(snapshot),
+          prompt: promptBuilder(snapshot),
         },
         { signal: controller.signal },
       );
-      const output = validateAllInReport(
+      const output = validator(
         parseAgentOutput(result.output),
         snapshot,
       );
@@ -284,30 +290,30 @@ function createAllInService({
         })),
         provenance: {
           adapter: settings.adapter,
-          methodology: "all-in-v2-executive-pitch",
+          methodology,
           boundary:
             "Portfolio synthesis from stored assessments and metadata; no repository execution.",
         },
       };
       writeJsonAtomic(
-        path.join(root(), "reports", `${report.id}.json`),
+        path.join(root(namespace), "reports", `${report.id}.json`),
         report,
       );
       job.status = "completed";
       job.finishedAt = now().toISOString();
-      s = readState();
+      s = readState(namespace);
       s.currentReportId = report.id;
       s.reportIds = [report.id, ...s.reportIds];
       s.run = job;
-      writeJsonAtomic(statePath(), s);
+      writeJsonAtomic(statePath(namespace), s);
     } catch (error) {
       job.status = "failed";
       job.error = error.message;
       job.errorCode = error.code || "ALL_IN_FAILED";
       job.finishedAt = now().toISOString();
-      const s = readState();
+      const s = readState(namespace);
       s.run = job;
-      writeJsonAtomic(statePath(), s);
+      writeJsonAtomic(statePath(namespace), s);
     } finally {
       running = null;
       controller = null;
@@ -328,12 +334,12 @@ function createAllInService({
     };
     running = job;
     controller = new AbortController();
-    const s = readState();
+    const s = readState(namespace);
     s.lastAttemptDay =
       dayKey ||
-      require("./allInScheduler").localDay(loadSettings().allIn, now());
+      require("./allInScheduler").localDay(loadSettings()[scheduleKey], now());
     s.run = job;
-    writeJsonAtomic(statePath(), s);
+    writeJsonAtomic(statePath(namespace), s);
     pending = new Promise((resolve) =>
       setImmediate(() => execute(job).finally(resolve)),
     );
@@ -342,8 +348,8 @@ function createAllInService({
   return {
     getState,
     startRun,
-    getReport,
-    getSnapshot,
+    getReport: id => getReport(id, namespace),
+    getSnapshot: id => getSnapshot(id, namespace),
     whenIdle: () => pending || Promise.resolve(),
     stop: () => controller?.abort(),
   };

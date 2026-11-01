@@ -148,3 +148,7 @@ export const restoreLinkedWorkspace = (id) =>
   request(`/workspaces/${id}/restore`, { method: "POST" });
 
 export function browseFolders(path = "") { return request(`/projects/folders${path ? `?path=${encodeURIComponent(path)}` : ""}`); }
+
+export const getGeezoSays = () => request('/geezo-says');
+export const runGeezoSays = () => request('/geezo-says/run', {method:'POST'});
+export const getGeezoEdition = id => request(`/geezo-says/reports/${id}`);

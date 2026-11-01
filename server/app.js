@@ -46,12 +46,18 @@ function createApp(options = {}) {
     "/api/all-in",
     require("./routes/allInRoute").createAllInRouter(allIn),
   );
+  const geezoSays = require("./lib/geezoSays").createGeezoSaysService();
+  const stopGeezoSchedule = options.discovery !== false && options.scheduling !== false
+    ? require("./lib/allInScheduler").startAllInScheduler(geezoSays, "geezoSays") : () => {};
+  app.use("/api/geezo-says", require("./routes/allInRoute").createAllInRouter(geezoSays));
   sseHub.analysis = analysis;
   app.locals.close = () => {
     app.locals.stopDiscovery?.();
     analysis.stop();
     stopAllInSchedule();
     allIn.stop();
+    stopGeezoSchedule();
+    geezoSays.stop();
   };
   require("./lib/migration").recoverMigrations();
   app.use(

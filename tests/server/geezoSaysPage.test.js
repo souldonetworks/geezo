@@ -1,0 +1,13 @@
+const test=require('node:test'),assert=require('node:assert/strict'),path=require('node:path'),Module=require('node:module');
+const React=require('../../web/node_modules/react'),renderer=require('../../web/node_modules/react-test-renderer'),{MemoryRouter}=require('../../web/node_modules/react-router-dom'),esbuild=require('../../web/node_modules/esbuild');
+const file=path.resolve(__dirname,'../../web/src/pages/GeezoSaysPage.jsx');const code=esbuild.buildSync({entryPoints:[file],bundle:true,platform:'node',format:'cjs',write:false,jsx:'automatic',loader:{'.png':'dataurl'},external:['react','react/jsx-runtime','react-router-dom']}).outputFiles[0].text;const compiled=new Module(file,module);compiled.filename=file;compiled.paths=Module._nodeModulePaths(path.dirname(file));compiled._compile(code,file);const Page=compiled.exports.default,{act}=renderer;
+test('Geezo page shows two distinct five-idea buckets and saves only its nightly schedule',async t=>{
+ const original=global.fetch;let root;const writes=[];
+ const report={id:'r1',summary:'My retirement plan.',gaps:[],createdAt:new Date().toISOString(),coverage:{total:1},sourceProjects:[{id:'p1',name:'Real ingredient'}],recommendations:Array.from({length:10},(_,i)=>({id:'idea-'+i,kind:i<5?'truck':'moonshot',workingName:'Pitch '+i,pitch:'Proposed experience',audience:'Proposed buyer',problem:'Hypothesis',existingIngredients:'Observed pieces',missingWork:'Proposed work',millionDollarMath:'Hypothetical annual revenue: illustrative.',firstExperiment:'Validate',killCriterion:'No user interest',hardestLeap:'Unknown demand',geezoSays:'I want my weekends back.',projectIds:['p1'],evidence:[{projectId:'p1',field:'description',observation:'Source'}]}))};
+ global.fetch=async(url,opts={})=>{if(opts.method==='PUT'){writes.push(JSON.parse(opts.body));return {ok:true,status:200,json:async()=>({geezoSays:writes[0].geezoSays})};}return {ok:true,status:200,json:async()=>({currentReport:report,history:[],schedule:{enabled:true,time:'23:00',timeZone:'America/Chicago'}})};};
+ t.after(()=>{if(root)act(()=>root.unmount());global.fetch=original;});
+ await act(async()=>{root=renderer.create(React.createElement(MemoryRouter,{future:{v7_startTransition:true,v7_relativeSplatPath:true}},React.createElement(Page)));});
+ const buckets=root.root.findAllByProps({className:'geezo-bucket'});assert.equal(buckets.length,2);for(const bucket of buckets)assert.equal(bucket.findAllByType('article').length,5);
+ assert.match(JSON.stringify(root.toJSON()),/not promises of demand/);
+ const save=root.root.findAllByType('button').find(b=>b.children.join('').includes('Save nightly schedule'));await act(async()=>save.props.onClick());assert.deepEqual(Object.keys(writes[0]),['geezoSays']);
+});

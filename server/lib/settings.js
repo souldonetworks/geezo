@@ -16,6 +16,7 @@ const DEFAULTS = {
     timeZone: "America/Chicago",
     workspaceRoot: path.join(os.homedir(), "Code", "Projects"),
   },
+  geezoSays: { enabled: true, time: "23:00", timeZone: "America/Chicago" },
   analysis: {
     adapter: "claude",
     executable: "claude",
@@ -48,6 +49,7 @@ function loadSettings() {
     portfolio: { ...DEFAULTS.portfolio, ...raw.portfolio },
     analysis: { ...DEFAULTS.analysis, ...raw.analysis },
     allIn: { ...DEFAULTS.allIn, ...raw.allIn },
+    geezoSays: { ...DEFAULTS.geezoSays, ...raw.geezoSays },
     commandTemplates: {
       ...DEFAULTS.commandTemplates,
       ...(raw.commandTemplates || {}),
@@ -63,6 +65,7 @@ function saveSettings(partial) {
     portfolio: { ...current.portfolio, ...partial.portfolio },
     analysis: { ...current.analysis, ...partial.analysis },
     allIn: { ...current.allIn, ...partial.allIn },
+    geezoSays: { ...current.geezoSays, ...partial.geezoSays },
     commandTemplates: {
       ...current.commandTemplates,
       ...(partial.commandTemplates || {}),
@@ -110,7 +113,10 @@ function saveSettings(partial) {
       new Error("Invalid All In schedule or workspace root"),
       { code: "INVALID_SETTINGS" },
     );
+  if (typeof merged.geezoSays.enabled !== "boolean" || !/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(merged.geezoSays.time) || typeof merged.geezoSays.timeZone !== "string")
+    throw Object.assign(new Error("Invalid Geezo says schedule"), {code:"INVALID_SETTINGS"});
   try {
+    new Intl.DateTimeFormat("en", { timeZone: merged.geezoSays.timeZone });
     new Intl.DateTimeFormat("en", { timeZone: merged.allIn.timeZone });
   } catch {
     throw Object.assign(new Error("Invalid schedule timezone"), {

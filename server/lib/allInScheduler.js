@@ -33,19 +33,19 @@ function shouldRunDaily(config, state, date) {
     !state.lastAttemptDay || state.lastAttemptDay < dueDailyKey(config, date)
   );
 }
-function startAllInScheduler(service) {
+function startAllInScheduler(service, scheduleKey = "allIn") {
   let stopped = false;
   let timer;
   function tick() {
     if (stopped) return;
     try {
-      const config = loadSettings().allIn;
+      const config = loadSettings()[scheduleKey];
       const state = service.getState();
       const now = new Date();
       if (shouldRunDaily(config, state, now))
         service.startRun({ reason: "daily", dayKey: dueDailyKey(config, now) });
     } catch (error) {
-      console.error("All In scheduler:", error.message);
+      console.error(`${scheduleKey} scheduler:`, error.message);
     }
     timer = setTimeout(tick, 60000);
     timer.unref();
