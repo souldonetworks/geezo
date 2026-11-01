@@ -1,0 +1,18 @@
+{
+  "portfolio": {
+    "roots": [],
+    "exclusions": [],
+    "scanIntervalMs": 60000
+  },
+  "analysis": {
+    "adapter": "codex",
+    "executable": "codex",
+    "concurrency": 1
+  },
+  "allIn": {
+    "enabled": false
+  },
+  "geezoSays": {
+    "enabled": false
+  }
+}

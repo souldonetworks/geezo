@@ -4,3 +4,7 @@ web/dist/
 *.log
 server/generatedAssets.mjs
 dist-bin/
+
+.geezo-data/
+
+.DS_Store
