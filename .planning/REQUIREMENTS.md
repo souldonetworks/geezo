@@ -5,13 +5,13 @@
 
 ## v1 Requirements
 
-Requirements for initial release. Each maps to roadmap phases. This is a retroactive ingest: REG, RM, ACT, GIT, CONV, and UI requirements are already implemented and shipped on `main`. Only PKG requirements are pending.
+Requirements for initial release. Each maps to roadmap phases. This is a retroactive ingest: REG, RM, ACT, GIT, CONV, and UI requirements are already implemented and shipped on `main`. Phase 7 packaging and Phase 07.1 integration closure are verified separately.
 
 ### Project Registry (REG)
 
 - [x] **REG-01**: User can add a project folder to the dashboard via folder picker
 - [x] **REG-02**: User can remove a project from the registry without touching its files
-- [x] **REG-03**: Dashboard validates added path is a GSD project (`.planning/ROADMAP.md` present) before registering
+- [x] **REG-03**: Dashboard validates that an added path is an existing directory; GSD metadata is detected when present but is not required for registration
 - [x] **REG-04**: User can discover GSD projects via scan-folder discovery feature
 - [x] **REG-05**: Registry persists across restarts in `~/.claude/gsd-web/projects.json`
 
@@ -41,12 +41,12 @@ Requirements for initial release. Each maps to roadmap phases. This is a retroac
 ### Convert to GSD Flow (CONV)
 
 - [x] **CONV-01**: User can configure CLI tool, terminal app, and command templates in Settings
-- [x] **CONV-02**: User can trigger "Convert to GSD project" for a non-GSD folder, launching a terminal via `osascript`
-- [x] **CONV-03**: Dashboard does not block/poll during conversion; folder becomes addable once `.planning/ROADMAP.md` appears
+- [x] **CONV-02**: User can prepare, review and explicitly apply a GSD adoption proposal for a registered non-GSD folder
+- [x] **CONV-03**: GSD adoption preserves source code and existing planning, supports guarded rollback, and refreshes project status after completion
 
 ### Dashboard Interface (UI)
 
-- [x] **UI-01**: User can view a dashboard card grid of all registered projects
+- [x] **UI-01**: User can view, filter and manage all registered projects in the portfolio table
 - [x] **UI-02**: User can view a project detail page with roadmap tree, running-now panel, and git panel
 - [x] **UI-03**: User can view/edit Settings (CLI tool, terminal app, command templates)
 - [x] **UI-04**: Each panel degrades independently on error (no whole-page crash)
@@ -125,3 +125,7 @@ Which phases cover which requirements.
 ---
 *Requirements defined: 2026-07-24*
 *Last updated: 2026-07-24 after initial roadmap creation (retroactive ingest)*
+
+## Approved requirement reconciliation (2026-11-01)
+
+REG-03 follows the approved all-folder portfolio pivot. UI-01 follows the approved portfolio-table design. CONV-02/03 follow the approved deliberate GSD-adoption flow, which supersedes the old automatic terminal-launch workflow. Historical wording and the earlier audit remain in git history. These changes preserve user decisions; they are not waivers for missing behavior.

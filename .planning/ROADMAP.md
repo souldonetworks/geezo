@@ -11,24 +11,24 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [x] **Phase 1: Project Registry & Discovery** - User can add, remove, and discover GSD project folders in a persistent local registry
+- [x] **Phase 1: Project Registry & Discovery** - User can add, remove, and discover project folders in a persistent local registry
 - [x] **Phase 2: Roadmap & State Parsing** - Dashboard reads ROADMAP.md/STATE.md/gsd.db and computes progress for any registered project
 - [x] **Phase 3: Live Agent Activity** - Dashboard shows currently running Claude Code subagents in real time via hook + SSE
 - [x] **Phase 4: Git Milestone Detection** - Dashboard shows each project's newest pushed git tag with graceful fallback states
-- [x] **Phase 5: Convert-to-GSD Flow** - User can turn a non-GSD folder into a GSD project by launching a configured terminal/CLI command
+- [x] **Phase 5: Convert-to-GSD Flow** - User can deliberately adopt GSD through a reviewed, guarded migration that preserves existing code and planning
 - [x] **Phase 6: Dashboard UI** - User can view/manage all of the above through a React dashboard, project detail page, and settings page
-- [x] **Phase 7: Single-Binary Packaging** - User can run the entire dashboard (including the hook) as one native executable with no Node.js install required (gaps found in verification 2026-07-24 — compiled binary crashes under Bun due to `node:sqlite`) (completed 2026-11-01)
+- [x] **Phase 7: Single-Binary Packaging** - User can run the entire dashboard (including the hook) as one native executable with no Node.js install required (completed 2026-11-01)
 
 ## Phase Details
 
 ### Phase 1: Project Registry & Discovery
 
-**Goal**: User can add, remove, and discover GSD project folders in a persistent local registry
+**Goal**: User can add, remove, and discover project folders in a persistent local registry
 **Depends on**: Nothing (first phase)
 **Requirements**: REG-01, REG-02, REG-03, REG-04, REG-05
 **Success Criteria** (what must be TRUE):
 
-  1. User can add a project folder via a client-side folder picker, and it appears in the registry once `.planning/ROADMAP.md` exists
+  1. User can add a project folder via the local folder picker, review its absolute path, and explicitly add it whether or not GSD metadata exists
   2. User can remove a project from the dashboard without any of its files or `.planning/` contents being touched
   3. User can run scan-folder discovery to find GSD projects on disk without manually typing paths
   4. Registry contents (`~/.claude/gsd-web/projects.json`) survive a server restart
@@ -80,14 +80,14 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
 
 ### Phase 5: Convert-to-GSD Flow
 
-**Goal**: User can turn a non-GSD folder into a GSD project by launching a configured terminal/CLI command
+**Goal**: User can deliberately adopt GSD through a reviewed, guarded migration that preserves existing code and planning
 **Depends on**: Phase 1
 **Requirements**: CONV-01, CONV-02, CONV-03
 **Success Criteria** (what must be TRUE):
 
   1. User can configure their preferred CLI tool, terminal app, and command templates, and those preferences persist
-  2. User can click "Convert to GSD project" on a non-GSD folder and see a terminal window open running the configured command against that folder
-  3. The dashboard doesn't block or poll while conversion runs — the folder simply becomes addable once `.planning/ROADMAP.md` exists
+  2. User can prepare a GSD adoption proposal, review its exact changes, and explicitly apply it to a registered non-GSD project
+  3. Adoption preserves source code and pre-existing planning; guarded rollback is available, and project status refreshes after completion
 
 **Plans**: Complete (already implemented — `server/lib/settings.js`, `server/lib/convert.js`, `server/routes/convertRoute.js`, `server/routes/settingsRoute.js`; tests: `tests/server/settings.test.js`, `tests/server/convert.test.js`)
 
@@ -98,7 +98,7 @@ The GSD Run Dashboard is a local, read-only web dashboard that lets a solo devel
 **Requirements**: UI-01, UI-02, UI-03, UI-04
 **Success Criteria** (what must be TRUE):
 
-  1. User can view a card grid of all registered projects plus an "Add Project" action
+  1. User can view a searchable/filterable portfolio table of all registered projects plus an "Add Project" action
   2. User can open a project detail page showing the roadmap tree, a "Running Now" live panel, and a git panel
   3. User can view and edit Settings (CLI tool, terminal app, command templates) from the UI
   4. If one panel's data source fails (e.g. moved/deleted project folder), only that panel shows an error state — the rest of the page still renders
@@ -143,3 +143,14 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 5. Convert-to-GSD Flow | Complete | Complete | 2026-07-24 (retroactive) |
 | 6. Dashboard UI | Complete | Complete | 2026-07-24 (retroactive) |
 | 7. Single-Binary Packaging | 5/5 | Complete    | 2026-11-01 |
+
+### Phase 07.1: Close original milestone integration gaps (INSERTED)
+
+**Goal:** Folder selection, complete success-criteria data and completion-triggered project refresh close the original audit failures.
+**Requirements**: REG-01, RM-01, ACT-05
+**Depends on:** Phase 7
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 07.1-01-PLAN.md — Close folder-selection, criteria and activity-refresh gaps

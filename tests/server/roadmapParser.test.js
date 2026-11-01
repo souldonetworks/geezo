@@ -24,3 +24,27 @@ test('parseRoadmap extracts phases, status, and plans', () => {
   assert.equal(phase2.status, 'pending');
   assert.equal(phase2.plans[1].done, false);
 });
+
+test('success criteria retain numbered items, continuations and phase boundaries', () => {
+  const {parseRoadmap} = require('../../server/lib/roadmapParser');
+  const result = parseRoadmap(`### Phase 1: First
+**Success Criteria** (what must be TRUE):
+  1. A user can select a folder
+     and inspect its path.
+  2. Registration is explicit.
+**Plans**: 1 plan
+- [ ] 01-01: Implement
+### Phase 2: Second
+**Success Criteria**:
+- Keep phase data separate.
+## Progress
+1. Not a criterion.`);
+  assert.deepEqual(result.phases[0].successCriteria, ['A user can select a folder and inspect its path.', 'Registration is explicit.']);
+  assert.deepEqual(result.phases[1].successCriteria, ['Keep phase data separate.']);
+});
+
+test('roadmap plan-file checklist entries are retained alongside success criteria', () => {
+  const {parseRoadmap} = require('../../server/lib/roadmapParser');
+  const result=parseRoadmap('### Phase 07.1: Closure\n**Success Criteria**:\n1. It works.\n**Plans**: 1\n- [x] 07.1-01-PLAN.md — Close the gaps');
+  assert.deepEqual(result.phases[0].plans,[{id:'07.1-01',title:'Close the gaps',done:true}]);
+});

@@ -146,3 +146,5 @@ export const archiveLinkedWorkspace = (id) =>
   request(`/workspaces/${id}/archive`, { method: "POST" });
 export const restoreLinkedWorkspace = (id) =>
   request(`/workspaces/${id}/restore`, { method: "POST" });
+
+export function browseFolders(path = "") { return request(`/projects/folders${path ? `?path=${encodeURIComponent(path)}` : ""}`); }

@@ -100,6 +100,11 @@ function createProjectsRouter(sseHub) {
 
   router.post("/discover", (req, res) => res.json(reconcileProjects()));
 
+  router.get("/folders", (req, res) => {
+    try { res.json(require("../lib/folderBrowser").browseFolders(req.query.path)); }
+    catch (error) { res.status(error.code === "ENOENT" ? 404 : 400).json({message:error.message}); }
+  });
+
   router.get("/scan", (req, res) => {
     const { path: parentPath } = req.query;
     if (!parentPath) return res.status(400).json({ code: "MISSING_PATH" });

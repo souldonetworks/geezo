@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { scanDirectory, addProject, convertProject } from "../api";
+import { scanDirectory, addProject } from "../api";
 
 export default function ScanFolderPanel({ onAdded }) {
   const [parentPath, setParentPath] = useState("");
@@ -18,13 +18,9 @@ export default function ScanFolderPanel({ onAdded }) {
   }
 
   async function handleAdd(entryPath) {
-    await addProject(entryPath);
-    onAdded();
-    handleScan();
-  }
-
-  async function handleConvert(entryPath) {
-    await convertProject(entryPath);
+    setError(null);
+    try { await addProject(entryPath); onAdded(); await handleScan(); }
+    catch (e) { setError(e.message); }
   }
 
   return (
@@ -43,7 +39,7 @@ export default function ScanFolderPanel({ onAdded }) {
           scan
         </button>
       </div>
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="error-text" role="alert">{error}</p>}
       {results && (
         <div style={{ marginTop: "var(--gap-md)" }}>
           {results.length === 0 ? (

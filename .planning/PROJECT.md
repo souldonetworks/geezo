@@ -16,7 +16,7 @@ You can check any registered GSD project's phase progress, current status, and l
 
 - ✓ **REG-01**: User can add a project folder to the dashboard via folder picker — shipped
 - ✓ **REG-02**: User can remove a project from the registry without touching its files — shipped
-- ✓ **REG-03**: Dashboard validates added path is a GSD project (`.planning/ROADMAP.md` present) before registering — shipped
+- ✓ **REG-03**: Dashboard validates that an added path is an existing directory; GSD metadata is detected when present but is not required for registration
 - ✓ **REG-04**: User can discover GSD projects via scan-folder discovery feature — shipped
 - ✓ **REG-05**: Registry persists across restarts in `~/.claude/gsd-web/projects.json` — shipped
 - ✓ **RM-01**: Dashboard parses `ROADMAP.md` phases/plans/success criteria into structured data — shipped
@@ -34,9 +34,9 @@ You can check any registered GSD project's phase progress, current status, and l
 - ✓ **GIT-02**: Dashboard shows graceful states for no-repo/no-remote/no-tags scenarios — shipped
 - ✓ **GIT-03**: No git network operations are performed (local refs only) — shipped
 - ✓ **CONV-01**: User can configure CLI tool, terminal app, and command templates in Settings — shipped
-- ✓ **CONV-02**: User can trigger "Convert to GSD project" for a non-GSD folder, launching a terminal via `osascript` — shipped
-- ✓ **CONV-03**: Dashboard does not block/poll during conversion; folder becomes addable once `.planning/ROADMAP.md` appears — shipped
-- ✓ **UI-01**: User can view a dashboard card grid of all registered projects — shipped
+- ✓ **CONV-02**: User can prepare, review and explicitly apply a GSD adoption proposal for a registered non-GSD folder
+- ✓ **CONV-03**: GSD adoption preserves source code and existing planning, supports guarded rollback, and refreshes project status after completion
+- ✓ **UI-01**: User can view, filter and manage all registered projects in the portfolio table
 - ✓ **UI-02**: User can view a project detail page with roadmap tree, running-now panel, and git panel — shipped
 - ✓ **UI-03**: User can view/edit Settings (CLI tool, terminal app, command templates) — shipped
 - ✓ **UI-04**: Each panel degrades independently on error (no whole-page crash) — shipped
@@ -100,3 +100,7 @@ Original roadmap complete. Reconcile the portfolio pivot into the next milestone
 
 ---
 *Last updated: 2026-11-01 after verified Phase 7 completion*
+
+## Approved requirement reconciliation (2026-11-01)
+
+REG-03 follows the approved all-folder portfolio pivot. UI-01 follows the approved portfolio-table design. CONV-02/03 follow the approved deliberate GSD-adoption flow, which supersedes the old automatic terminal-launch workflow. Historical wording and the earlier audit remain in git history. These changes preserve user decisions; they are not waivers for missing behavior.

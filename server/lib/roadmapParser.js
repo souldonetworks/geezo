@@ -10,6 +10,7 @@ function parseRoadmap(markdown) {
   const checklist = new Map();
   const phases = [];
   let current = null;
+  let inCriteria = false;
 
   for (const line of lines) {
     const checklistMatch = CHECKLIST_RE.exec(line);
@@ -22,12 +23,25 @@ function parseRoadmap(markdown) {
     const headerMatch = PHASE_HEADER_RE.exec(line);
     if (headerMatch) {
       if (current) phases.push(current);
+      inCriteria = false;
       const [, number, title] = headerMatch;
-      current = { number, title, goal: '', dependsOn: '', requirements: [], plans: [] };
+      current = { number, title, goal: '', dependsOn: '', requirements: [], successCriteria: [], plans: [] };
       continue;
     }
 
     if (!current) continue;
+
+    if (/^\*\*Success Criteria\*\*/.test(line)) { inCriteria = true; continue; }
+    if (inCriteria) {
+      const item = /^\s*(?:\d+[.)]|[-*])\s+(.+)$/.exec(line);
+      if (item) { current.successCriteria.push(item[1].trim()); continue; }
+      if (/^\s+\S/.test(line) && current.successCriteria.length) {
+        current.successCriteria[current.successCriteria.length - 1] += " " + line.trim();
+        continue;
+      }
+      if (!line.trim()) continue;
+      inCriteria = false;
+    }
 
     const goalMatch = GOAL_RE.exec(line);
     if (goalMatch) {
@@ -51,7 +65,7 @@ function parseRoadmap(markdown) {
       continue;
     }
 
-    const planMatch = PLAN_RE.exec(line);
+    const planMatch = PLAN_RE.exec(line) || /^- \[( |x|X)\] ([\w.]+-\d+)-PLAN\.md\s+[—–-]\s+(.+)$/.exec(line);
     if (planMatch) {
       const [, doneFlag, id, title] = planMatch;
       current.plans.push({ id, title, done: doneFlag.toLowerCase() === 'x' });

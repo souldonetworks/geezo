@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRoadmap, getGit, listBriefings } from "../api";
 import RoadmapTree from "../components/RoadmapTree";
@@ -15,6 +15,8 @@ export default function ProjectDetail() {
   const [roadmap, setRoadmap] = useState(null);
   const [git, setGit] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [dataRefreshKey, setDataRefreshKey] = useState(0);
+  const refreshProject = useCallback(() => setDataRefreshKey(k => k + 1), []);
   const [roadmapError, setRoadmapError] = useState("");
   const [gitError, setGitError] = useState("");
 
@@ -36,7 +38,7 @@ export default function ProjectDetail() {
     return () => {
       live = false;
     };
-  }, [id]);
+  }, [id, dataRefreshKey]);
 
   return (
     <>
@@ -46,33 +48,27 @@ export default function ProjectDetail() {
         </Link>
         <p className="eyebrow">PROJECT INTELLIGENCE</p>
         <h1>{project?.name || "Project detail"}</h1>
+        <button className="btn btn-secondary" onClick={refreshProject}>Refresh project</button>
         <p className="page-description">
           Purpose, evidence and delivery — with the unknowns in view.
         </p>
       </div>
       <div className="page-content">
-        <ProjectMetadataPanel key={id} projectId={id} />
-        <ExecutiveBriefPanel key={id} projectId={id} refreshKey={refreshKey} />
+        <ProjectMetadataPanel key={`metadata:${id}`} projectId={id} />
+        <ExecutiveBriefPanel key={`brief:${id}`} projectId={id} refreshKey={refreshKey} />
         <AnalysisPanel
-          key={id}
+          key={`analysis:${id}`}
           projectId={id}
           onCompleted={() => setRefreshKey((k) => k + 1)}
         />
         <GsdMigrationPanel
-          key={id}
+          key={`migration:${id}`}
           projectId={id}
-          onChanged={() => {
-            getRoadmap(id)
-              .then(setRoadmap)
-              .catch((e) => setRoadmapError(e.message));
-            getGit(id)
-              .then(setGit)
-              .catch((e) => setGitError(e.message));
-          }}
+          onChanged={refreshProject}
         />
         <div className="card">
           <h3>running now</h3>
-          <RunningNowPanel projectId={id} />
+          <RunningNowPanel key={id} projectId={id} onCompleted={refreshProject} />
         </div>
         <div className="card">
           <h3>milestone</h3>

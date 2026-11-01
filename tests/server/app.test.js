@@ -405,3 +405,17 @@ test("lens CRUD, project description and All In status are available through the
   assert.equal(response.status, 200);
   assert.equal((await response.json()).currentReport, null);
 });
+
+test('folder browser API preserves explicit registration and roadmap criteria reach the response', async t => {
+  const {createApp}=freshHome();const app=createApp({discovery:false});const server=app.listen(0);
+  t.after(()=>{app.locals.close();server.close();});
+  const base=`http://localhost:${server.address().port}`;
+  const target=fs.mkdtempSync(path.join(os.tmpdir(),'folder-api-'));t.after(()=>fs.rmSync(target,{recursive:true,force:true}));
+  fs.mkdirSync(path.join(target,'.planning'));
+  fs.writeFileSync(path.join(target,'.planning','ROADMAP.md'),'### Phase 1: Useful\n**Success Criteria**:\n1. An observable outcome.');
+  const browsing=await fetch(base+'/api/projects/folders?path='+encodeURIComponent(target));assert.equal(browsing.status,200);assert.equal((await browsing.json()).path,fs.realpathSync(target));
+  assert.deepEqual(await (await fetch(base+'/api/projects')).json(),[]);
+  const added=await (await fetch(base+'/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:target})})).json();
+  const roadmap=await (await fetch(base+`/api/projects/${added.id}/roadmap`)).json();assert.deepEqual(roadmap.phases[0].successCriteria,['An observable outcome.']);
+  assert.equal((await fetch(base+'/api/projects/folders?path=relative')).status,400);
+});

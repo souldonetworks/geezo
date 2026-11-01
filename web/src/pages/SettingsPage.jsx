@@ -15,7 +15,7 @@ export default function SettingsPage() {
   if (!settings)
     return (
       <div className="page-content">
-        <p className="empty-state">Loading…</p>
+        {error ? <p role="alert">{error}</p> : <p className="empty-state">Loading…</p>}
       </div>
     );
 

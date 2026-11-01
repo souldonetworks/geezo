@@ -17,6 +17,7 @@ function Phase({ phase }) {
       {open && (
         <div style={{ paddingLeft: 'var(--space-4)', paddingTop: 'var(--gap-xs)' }}>
           <p className="empty-state">{phase.goal}</p>
+          {(phase.successCriteria || []).length > 0 && <section aria-label="Success criteria"><h4>Success criteria</h4><ol>{phase.successCriteria.map((criterion, i) => <li key={i}>{criterion}</li>)}</ol></section>}
           {phase.plans.map((plan) => (
             <div className="log-line" key={plan.id}>
               <span className={`badge ${plan.done ? '' : 'muted'}`} style={{ marginRight: 'var(--gap-sm)' }}>
